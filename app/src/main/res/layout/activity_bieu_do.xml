@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_bieudo"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!--<android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"-->
+        <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
+        <!--android:layout_height="@dimen/abc_action_bar_default_height_material"-->
+        <!--android:elevation="0dp"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:id="@+id/toolbar_bieudo"-->
+        <!--android:background="@color/colorPrimary"-->
+        <!--app:theme="@style/AppTheme.AppBarOverlay"-->
+        <!--app:popupTheme="@style/AppTheme.PopupOverlay"/>-->
+
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginTop="@dimen/activity_horizontal_margin"-->
+        <!--android:layout_marginLeft="@dimen/dimen_8dp"-->
+        <!--android:layout_marginRight="@dimen/dimen_8dp"-->
+        <!--android:orientation="horizontal"-->
+        <!--android:weightSum="2">-->
+
+        <!--<TextView-->
+            <!--android:text="Chọn Ao"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="0.5"-->
+            <!--android:textColor="@android:color/black"/>-->
+
+        <!--<Spinner-->
+            <!--android:id="@+id/spinner_lake"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="1.5"></Spinner>-->
+
+    <!--</LinearLayout>-->
+
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginTop="@dimen/dimen_8dp"-->
+        <!--android:layout_marginLeft="@dimen/dimen_8dp"-->
+        <!--android:layout_marginRight="@dimen/dimen_8dp"-->
+        <!--android:orientation="horizontal"-->
+        <!--android:weightSum="2">-->
+
+        <!--<TextView-->
+            <!--android:text="Tên Thiết Bị"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="0.5"-->
+            <!--android:textColor="@android:color/black"/>-->
+
+        <!--<Spinner-->
+            <!--android:id="@+id/spinner_device"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="1.5"></Spinner>-->
+
+    <!--</LinearLayout>-->
+
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginTop="@dimen/dimen_8dp"-->
+        <!--android:layout_marginLeft="@dimen/dimen_8dp"-->
+        <!--android:layout_marginRight="@dimen/dimen_8dp"-->
+        <!--android:orientation="horizontal"-->
+        <!--android:weightSum="2">-->
+
+        <!--<TextView-->
+            <!--android:text="Thông số"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="0.5"-->
+            <!--android:textColor="@android:color/black"/>-->
+
+        <!--<Spinner-->
+            <!--android:id="@+id/spinner_thongso"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="1.5"></Spinner>-->
+    <!--</LinearLayout>-->
+
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginLeft="@dimen/dimen_8dp"-->
+        <!--android:layout_marginRight="@dimen/dimen_8dp"-->
+        <!--android:orientation="horizontal"-->
+        <!--android:weightSum="2">-->
+
+        <!--<TextView-->
+            <!--android:text="Chọn ngày"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="0.5"-->
+            <!--android:textColor="@android:color/black"/>-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/txt_NgayThangNam"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:textStyle="bold"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="1"></TextView>-->
+
+        <!--<Button-->
+            <!--android:id="@+id/btn_ChonNgay"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="0.5"-->
+            <!--android:text="Đổi"/>-->
+    <!--</LinearLayout>-->
+
+    <!--<LinearLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginTop="@dimen/dimen_8dp"-->
+            <!--android:layout_marginLeft="@dimen/dimen_8dp"-->
+            <!--android:layout_marginRight="@dimen/dimen_8dp"-->
+            <!--android:orientation="vertical">-->
+
+            <!--<Button-->
+                <!--android:id="@+id/btn_Ok"-->
+                <!--android:background="@color/colorPrimary"-->
+                <!--android:gravity="center"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:textColor="@android:color/white"-->
+                <!--android:text="Xem"/>-->
+
+            <!--<com.github.mikephil.charting.charts.LineChart-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_marginTop="16dp"-->
+                <!--android:layout_height="240dip"-->
+                <!--android:id="@+id/graph" />-->
+
+    <!--</LinearLayout>-->
+
+    <!--<TextView-->
+        <!--android:layout_gravity="center"-->
+        <!--android:layout_marginTop="@dimen/cardview_default_radius"-->
+        <!--android:id="@+id/txt_TenBieuDo"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:textColor="@color/colorPrimaryDark"-->
+        <!--android:textStyle="bold"-->
+        <!--android:textSize="20dp"-->
+        <!--android:text=""/>-->
+</LinearLayout>

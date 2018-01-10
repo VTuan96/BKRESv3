@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/abc_action_bar_default_height_material"
+        android:elevation="0dp"
+        android:id="@+id/toolbarInfo"
+        android:background="@color/colorPrimary"
+        app:theme="@style/AppTheme.AppBarOverlay"
+        app:popupTheme="@style/AppTheme.PopupOverlay"></android.support.v7.widget.Toolbar>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:text="TIÊU CHUẨN NƯỚC NUÔI TÔM"
+        android:textColor="#0094ff"
+        android:textStyle="bold"
+        android:gravity="center_horizontal"/>
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="40dp">
+
+        <TableRow>
+            <TextView
+                android:text="Thông số"
+                android:textAllCaps="true"
+                android:padding="10dp"
+                android:textStyle="bold"
+                android:layout_weight="2"
+                android:layout_column="1"
+                android:background="@drawable/textview_bound_style"/>
+            <TextView
+                android:text="Tối ưu"
+                android:textAllCaps="true"
+                android:padding="10dp"
+                android:textStyle="bold"
+                android:layout_weight="1"
+                android:layout_column="2"
+                android:background="@drawable/textview_bound_style"/>
+            <TextView
+                android:text="Giới hạn"
+                android:textAllCaps="true"
+                android:padding="10dp"
+                android:textStyle="bold"
+                android:layout_weight="1"
+                android:layout_column="3"
+                android:background="@drawable/textview_bound_style"/>
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:text="Nhiệt độ (oC)"
+                android:layout_weight="2"
+                android:layout_column="1"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+            <TextView
+                android:text="20 - 30"
+                android:layout_weight="1"
+                android:layout_column="2"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+            <TextView
+                android:text="18 - 33"
+                android:layout_weight="1"
+                android:layout_column="3"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:text="Độ muối (/oo)"
+                android:layout_weight="2"
+                android:layout_column="1"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+            <TextView
+                android:text="10 - 25"
+                android:layout_weight="1"
+                android:layout_column="2"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+            <TextView
+                android:text="5 - 35"
+                android:layout_weight="1"
+                android:layout_column="3"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:text="Độ trong (cm)"
+                android:layout_weight="2"
+                android:layout_column="1"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+            <TextView
+                android:text="30 - 35"
+                android:layout_weight="1"
+                android:layout_column="2"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+            <TextView
+                android:text="25 - 50"
+                android:layout_weight="1"
+                android:layout_column="3"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:text="pH (sáng dao động, chiều &lt;0,5)"
+                android:layout_weight="2"
+                android:layout_column="1"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+            <TextView
+                android:text="7,5 - 8,5"
+                android:layout_weight="1"
+                android:layout_column="2"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+            <TextView
+                android:text="7 - 9"
+                android:layout_weight="1"
+                android:layout_column="3"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:text="Độ kiềm (mg/l)"
+                android:layout_weight="2"
+                android:layout_column="1"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+            <TextView
+                android:text="100 - 150"
+                android:layout_weight="1"
+                android:layout_column="2"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+            <TextView
+                android:text="60 - 180"
+                android:layout_weight="1"
+                android:layout_column="3"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:text="Ôxy hòa tan (mg/l)"
+                android:layout_weight="2"
+                android:layout_column="1"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+            <TextView
+                android:text="&gt; 5"
+                android:layout_weight="1"
+                android:layout_column="2"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+            <TextView
+                android:text="&gt; 3,5"
+                android:layout_weight="1"
+                android:layout_column="3"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:text="Sunphua hyđrô tự do H2S(mg/l)"
+                android:layout_weight="2"
+                android:layout_column="1"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+            <TextView
+                android:text="&lt; 0,03"
+                android:layout_weight="1"
+                android:layout_column="2"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+            <TextView
+                android:text="&lt; 0,05"
+                android:layout_weight="1"
+                android:layout_column="3"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:text="Amôniac tự do NH3 (mg/l)"
+                android:layout_weight="2"
+                android:layout_column="1"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+            <TextView
+                android:text="&lt; 0,1"
+                android:layout_weight="1"
+                android:layout_column="2"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+            <TextView
+                android:text="&lt; 0,3"
+                android:layout_weight="1"
+                android:layout_column="3"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:text="Nitrit NO2- (mg/l)"
+                android:layout_weight="2"
+                android:layout_column="1"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+            <TextView
+                android:text="&lt; 0,2"
+                android:layout_weight="1"
+                android:layout_column="2"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+            <TextView
+                android:text="&lt; 1"
+                android:layout_weight="1"
+                android:layout_column="3"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:text="Khoáng chất Mg:Ca:K"
+                android:layout_weight="2"
+                android:layout_column="1"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+            <TextView
+                android:text="3,1 : 1 : 0,9"
+                android:layout_weight="1"
+                android:layout_column="2"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+            <TextView
+                android:text=""
+                android:layout_weight="1"
+                android:layout_column="3"
+                android:background="@drawable/text_view_shadow_bound_style"/>
+        </TableRow>
+
+    </TableLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="8sp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="20dp"
+        android:text="(QCVN 02 - 19 : 2014/BNNPTNT) "/>
+
+</LinearLayout>

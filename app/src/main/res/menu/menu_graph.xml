@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!--<group android:id="@+id/mnuGroup">-->
+        <!--<item android:id="@+id/mnuLake"-->
+            <!--android:title="Chọn ao"-->
+            <!--app:showAsAction="always"-->
+            <!--android:icon="@drawable/ic_lake_menu"/>-->
+    <!--</group>-->
+
+
+    <!--<item android:id="@+id/mnuDevice"-->
+        <!--android:title="Chọn thiết bị"-->
+        <!--app:showAsAction="always"-->
+        <!--android:icon="@drawable/ic_device_menu"/>-->
+    <item android:id="@+id/mnuTime"
+        android:title="Chọn ngày"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_time_menu"/>
+
+</menu>

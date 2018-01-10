@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+       <!-- <item
+            android:id="@+id/nav_camera"
+            android:icon="@drawable/ic_menu_camera"
+            android:title="Giám sát hệ thống" />-->
+        <item
+            android:id="@+id/nav_chart"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="Biểu đồ thống kê" />
+       <!-- <item
+            android:id="@+id/nav_slideshow"
+            android:icon="@drawable/ic_menu_slideshow"
+            android:title="Tin tức" />-->
+        <item
+            android:id="@+id/nav_setting"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="Cài đặt" />
+
+        <item
+            android:id="@+id/nav_info"
+            android:icon="@drawable/ic_info_outline_black_24dp"
+            android:title="Bạn cần biết"/>
+
+        <item
+            android:id="@+id/nav_exit"
+            android:icon="@drawable/ic_highlight_off_black_36dp"
+            android:title="Thoát" />
+    </group>
+
+    <item android:title="Khác">
+        <menu>
+            <item
+                android:id="@+id/nav_share"
+                android:icon="@drawable/ic_menu_share"
+                android:title="Góp ý" />
+            <item
+                android:id="@+id/nav_send"
+                android:icon="@drawable/ic_menu_send"
+                android:title="Thông tin phần mềm" />
+        </menu>
+    </item>
+
+</menu>

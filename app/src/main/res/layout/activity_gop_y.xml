@@ -1,0 +1,59 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/text1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:text="Vui lòng điền đầy đủ các ô dưới đây"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <EditText
+        android:id="@+id/recipient"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textEmailAddress"
+        android:text="phuc.phungdinh@gmail.com" />
+
+    <EditText
+        android:id="@+id/subject"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Tiêu đề mail" />
+
+    <TextView
+        android:layout_marginTop="@dimen/dimen_8dp"
+        android:layout_marginBottom="@dimen/dimen_8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dimen_8dp"
+        android:text="Nội dung email"
+        android:textSize="18dp"
+        android:textStyle="bold"/>
+    <EditText
+        android:background="@drawable/bg_shape"
+        android:id="@+id/body"
+        android:inputType="textShortMessage|textMultiLine"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:ems="10"/>
+
+    <Button
+        android:id="@+id/sendEmail"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:background="@color/colorPrimary"
+        android:textColor="@color/white"
+        android:layout_marginTop="30dp"
+        android:text="Gửi Email Góp ý" />
+
+</LinearLayout>

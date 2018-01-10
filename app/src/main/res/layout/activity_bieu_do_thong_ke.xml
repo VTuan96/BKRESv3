@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_bieudo"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_height="@dimen/abc_action_bar_default_height_material"
+        android:elevation="0dp"
+        android:layout_width="match_parent"
+        android:id="@+id/toolbar_bieudo"
+        android:background="@color/colorPrimary"
+        app:theme="@style/AppTheme.AppBarOverlay"
+        app:popupTheme="@style/AppTheme.PopupOverlay"/>
+    
+    <!--<android.support.v4.view.ViewPager-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content">-->
+        <!--<android.support.v4.view.PagerTabStrip-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content">-->
+        <!--</android.support.v4.view.PagerTabStrip>-->
+
+    <!--</android.support.v4.view.ViewPager>-->
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:id="@+id/txtContent"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="Chưa có dữ liệu"
+        android:drawableStart="@drawable/ic_cached_black_24dp"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:id="@+id/rvBieuDo"></android.support.v7.widget.RecyclerView>
+
+
+
+
+</LinearLayout>
