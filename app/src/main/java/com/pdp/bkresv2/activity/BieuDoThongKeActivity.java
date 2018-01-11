@@ -275,17 +275,12 @@ public class BieuDoThongKeActivity extends AppCompatActivity {
         SubMenu subMenu= menu.addSubMenu(0,9999,0,"Chọn ao").setIcon(R.drawable.ic_lake_menu);
 
         for (int i=0;i<listLake.size();i++){
-            SubMenu subMenu1= subMenu.addSubMenu(0,i,i,listLake.get(i).getName());
+            SubMenu subMenu1= subMenu.addSubMenu(0,888,i,listLake.get(i).getName());
             for (int j=0;j<listDevice.size();j++){
                 if (listLake.get(i).getLakeId()==listDevice.get(j).getLakeId())
                 subMenu1.add(j,j,j,listDevice.get(j).getName());
             }
         }
-
-//        for (int i=0;i<listLake.size();i++){
-//            subMenu.add(0,i,i,listLake.get(i).getName());
-//        }
-
 
         MenuInflater inflater= getMenuInflater();
         inflater.inflate(R.menu.menu_graph,menu);
@@ -315,11 +310,6 @@ public class BieuDoThongKeActivity extends AppCompatActivity {
                 }
             }
 
-//            for (int i=0;i<listLake.size();i++){
-//                if (id==i){
-//                    Log.d("menu",listLake.get(i).getName());
-//                }
-//            }
 
             if (id== R.id.mnuTime) {
                 showDialog(999);
