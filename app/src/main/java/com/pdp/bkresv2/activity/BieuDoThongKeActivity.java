@@ -90,9 +90,6 @@ public class BieuDoThongKeActivity extends AppCompatActivity {
     LinearLayout layout_bieudo;
     TextView txtContent;
 
-    RecyclerView rvLake;
-    LakeAdapter lakeAdapter;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,13 +112,6 @@ public class BieuDoThongKeActivity extends AppCompatActivity {
 
         month = calendar.get(Calendar.MONTH);
         day = calendar.get(Calendar.DAY_OF_MONTH);
-
-//        lakeAdapter =new LakeAdapter(BieuDoThongKeActivity.this,listLake);
-//        LinearLayoutManager linearLayoutManager=new LinearLayoutManager(this);
-//        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-//        rvLake.setLayoutManager(linearLayoutManager);
-//        rvLake.setAdapter(lakeAdapter);
-
 
     }
 
@@ -146,7 +136,6 @@ public class BieuDoThongKeActivity extends AppCompatActivity {
 
         rvBieuDo= (RecyclerView) findViewById(R.id.rvBieuDo);
         layout_bieudo= (LinearLayout) findViewById(R.id.layout_bieudo);
-//        rvLake= (RecyclerView) findViewById(R.id.rvLake);
 
     }
 
@@ -261,11 +250,8 @@ public class BieuDoThongKeActivity extends AppCompatActivity {
                     // arg2 = month
                     // arg3 = day
                     tmpNgayThangNam = arg1 +"-" + (arg2+1) + "-" + arg3;
-                    //showDate(arg1, arg2 + 1, arg3);
                     DownloadData downloadData=new DownloadData();
                     downloadData.execute();
-
-
                 }
             };
 
@@ -316,7 +302,6 @@ public class BieuDoThongKeActivity extends AppCompatActivity {
 
                 return true;
             }
-
 
             return super.onOptionsItemSelected(item);
 

@@ -19,6 +19,13 @@ public class DeviceFragment extends Fragment {
         // Required empty public constructor
     }
 
+    public static DeviceFragment newInstance(String title){
+        DeviceFragment df=new DeviceFragment();
+
+        return df;
+    }
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

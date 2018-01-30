@@ -1,16 +1,15 @@
 package com.pdp.bkresv2.activity;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,10 +28,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.data.Entry;
 import com.pdp.bkresv2.R;
+import com.pdp.bkresv2.adapter.GraphAdapter;
 import com.pdp.bkresv2.model.Customer;
 import com.pdp.bkresv2.model.Datapackage;
 import com.pdp.bkresv2.model.Device;
+import com.pdp.bkresv2.model.Graph;
 import com.pdp.bkresv2.model.Lake;
 import com.pdp.bkresv2.task.DownloadJSON;
 import com.pdp.bkresv2.utils.Constant;
@@ -44,6 +46,7 @@ import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.List;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -60,7 +63,6 @@ public class HomeActivity extends AppCompatActivity
 
     //Widget
     TextView txt_Nav_UserName, txt_Nav_Email, txt_Tittle, txt_Time_Update;
-    TextView txt_Temp, txt_PH, txt_Oxy, txt_Salt, txt_NH4, txt_H2S, txt_NO2_Min, txt_NO2_Max, txt_NH4_Min, txt_NH4_Max, txt_H2S_Min, txt_H2S_Max;
 
     ArrayList<Lake> listLake = new ArrayList<>();
     ArrayList<Device> listDevice = new ArrayList<>();
@@ -81,6 +83,53 @@ public class HomeActivity extends AppCompatActivity
         }
 
     }
+
+    private RecyclerView rvBieuDoThongKe;
+    private ArrayList<Graph> listGraph=new ArrayList<>();
+    private GraphAdapter adapter=new GraphAdapter(listGraph);
+    private int count=0;
+
+    //All components of all graphs
+    private ArrayList<Entry> entriesPH=new ArrayList<>();
+    private ArrayList labelsPH = new ArrayList<String>();
+
+    private ArrayList<Entry> entriesSalt=new ArrayList<>();
+    private ArrayList labelsSalt = new ArrayList<String>();
+
+    private ArrayList<Entry> entriesOxy=new ArrayList<>();
+    private ArrayList labelsOxy = new ArrayList<String>();
+
+    private ArrayList<Entry> entriesTemp=new ArrayList<>();
+    private ArrayList labelsTemp = new ArrayList<String>();
+
+
+    private ArrayList<Entry> entriesH2S=new ArrayList<>();
+    private ArrayList labelsH2S = new ArrayList<String>();
+
+    private ArrayList<Entry> entriesNH3=new ArrayList<>();
+    private ArrayList labelsNH3 = new ArrayList<String>();
+
+    private ArrayList<Entry> entriesNH4Min=new ArrayList<>();
+    private ArrayList labelsNH4Min = new ArrayList<String>();
+
+    private ArrayList<Entry> entriesNH4Max=new ArrayList<>();
+    private ArrayList labelsNH4Max = new ArrayList<String>();
+
+    private ArrayList<Entry> entriesNO2Min=new ArrayList<>();
+    private ArrayList labelsNO2Min = new ArrayList<String>();
+
+    private ArrayList<Entry> entriesNO2Max=new ArrayList<>();
+    private ArrayList labelsNO2Max = new ArrayList<String>();
+
+    private ArrayList<Entry> entriesH2SMax=new ArrayList<>();
+    private ArrayList labelsH2SMax = new ArrayList<String>();
+
+    private ArrayList<Entry> entriesH2SMin=new ArrayList<>();
+    private ArrayList labelsH2SMin = new ArrayList<String>();
+
+    //All label of graph
+    private String [] arrLabels=new String[]{"PH","Salt","Oxy", "Temp", "H2S","NH3","NH4 Max","NH4 Min",
+            "NO2 Max","NO2 Min","H2S Max","H2S Min" };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -248,24 +297,36 @@ public class HomeActivity extends AppCompatActivity
     }
 
     public void initWidget(){
-        txt_Temp = (TextView) findViewById(R.id.txt_temperature);
         txt_Time_Update = (TextView) findViewById(R.id.txt_time_update);
-        txt_PH = (TextView) findViewById(R.id.txt_PH);
-        txt_Salt = (TextView) findViewById(R.id.txt_Salt);
-        txt_Oxy = (TextView) findViewById(R.id.txt_Oxi);
-        txt_NH4 = (TextView) findViewById(R.id.txt_Nh4);
-        txt_H2S = (TextView) findViewById(R.id.txt_Sulfide);
-        txt_NO2_Min = (TextView) findViewById(R.id.txt_NO2_Min);
-        txt_NO2_Max = (TextView) findViewById(R.id.txt_NO2_Max);
-        txt_NH4_Min = (TextView) findViewById(R.id.txt_NH4_Min);
-        txt_NH4_Max = (TextView) findViewById(R.id.txt_NH4_Max);
-        txt_H2S_Min = (TextView) findViewById(R.id.txt_Sulfide_Min);
-        txt_H2S_Max = (TextView) findViewById(R.id.txt_Sulfide_Max);
         txt_Tittle = (TextView) findViewById(R.id.txt_title);
+
+        listGraph=new ArrayList<>();
+        rvBieuDoThongKe= (RecyclerView) findViewById(R.id.rvBieuDoThongKe);
+        rvBieuDoThongKe.setHasFixedSize(true);
+        LinearLayoutManager manager=new LinearLayoutManager(getBaseContext());
+        rvBieuDoThongKe.setLayoutManager(manager);
+        Graph gPH=new Graph(arrLabels[0],entriesPH,labelsPH);
+        Graph gSalt=new Graph(arrLabels[1],entriesSalt,labelsSalt);
+        Graph gOxy=new Graph(arrLabels[2],entriesOxy,labelsOxy);
+        Graph gTemp=new Graph(arrLabels[3],entriesTemp,labelsTemp);
+        Graph gH2S=new Graph(arrLabels[4],entriesH2S,labelsH2S);
+        Graph gNH3=new Graph(arrLabels[5],entriesNH3,labelsNH3);
+        Graph gNH4Max=new Graph(arrLabels[6],entriesNH4Max,labelsNH4Max);
+        Graph gNH4Min=new Graph(arrLabels[7],entriesNH4Min,labelsNH4Min);
+        Graph gNO2Max=new Graph(arrLabels[8],entriesNO2Min,labelsNO2Max);
+        Graph gNO2Min=new Graph(arrLabels[9],entriesNO2Min,labelsNO2Min);
+        Graph gH2SMax=new Graph(arrLabels[10],entriesH2SMax,labelsH2SMax);
+        Graph gH2SMin=new Graph(arrLabels[11],entriesH2SMin,labelsH2SMin);
+        Graph [] arrGraph=new Graph[]{gPH,gH2S,gH2SMax,gH2SMin,gNH3,gNH4Max,gNH4Min,gNO2Max,gNO2Min,gOxy,gSalt,gTemp};
+        for (Graph g:arrGraph){
+            listGraph.add(g);
+        }
+        adapter=new GraphAdapter(listGraph);
+        rvBieuDoThongKe.setAdapter(adapter);
     }
 
-
     String tempSelectedDevice;
+
     public void selectDeviceDialog(String title) {
         tempSelectedDevice = "";
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -298,10 +359,6 @@ public class HomeActivity extends AppCompatActivity
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner_Lake.setAdapter(adapter);
         //spinner_Lake.setOnItemSelectedListener(new MyOnItemSelectedListener());
-
-
-
-
 
         spinner_Lake.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -432,6 +489,9 @@ public class HomeActivity extends AppCompatActivity
                         mSocket.on("new message", onDataReceive);
                         Log.i("IMEI DEVICE SELECT", selectedImeiDevice);
                         getDatapackageByDeviceName();
+
+                        adapter.notifyDataSetChanged();
+
                     } else {
                         Toast.makeText(HomeActivity.this, "Tài khoản này không quản lý thiết bị nào!", Toast.LENGTH_SHORT).show();
                     }
@@ -452,6 +512,8 @@ public class HomeActivity extends AppCompatActivity
     public void getDatapackageByDeviceName(){
         pDialog.setMessage("Đang tải...");
         pDialog.show();
+
+
 
         int deviceId = -1;
         for(int i=0; i<listDevice.size(); i++){
@@ -511,18 +573,11 @@ public class HomeActivity extends AppCompatActivity
     public void updateView(Datapackage datapackage){
         txt_Tittle.setText("Ao " + selectedLake + " - Thiết bị " + selectedDevice);
         txt_Time_Update.setText("Cập nhật: " + XuLyThoiGian.StringToDatetimeString(datapackage.getTime_Package()));
-        txt_Temp.setText(datapackage.getTemp()+"");
-        txt_PH.setText(datapackage.getPH()+"");
-        txt_Salt.setText(datapackage.getSalt()+"");
-        txt_Oxy.setText(datapackage.getOxy()+"");
-        txt_NH4 .setText(datapackage.getNH3()+"");
-        txt_H2S.setText(datapackage.getH2S()+"");
-        txt_NO2_Min .setText(datapackage.getNO2Min()+"");
-        txt_NO2_Max .setText(datapackage.getNO2Max()+"");
-        txt_NH4_Min.setText(datapackage.getNH4Min()+"");
-        txt_NH4_Max .setText(datapackage.getNH4Max()+"");
-        txt_H2S_Min.setText(datapackage.getSulfideMin()+"");
-        txt_H2S_Max.setText(datapackage.getSulfideMax()+"");
+
+
+//        adapter=new GraphAdapter(listGraph);
+//        rvBieuDoThongKe.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 
     public void handleExit(){
@@ -535,6 +590,14 @@ public class HomeActivity extends AppCompatActivity
         finish();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        adapter=new GraphAdapter(listGraph);
+        rvBieuDoThongKe.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+    }
 
     @Override
     protected void onDestroy() {
@@ -569,8 +632,9 @@ public class HomeActivity extends AppCompatActivity
                 public void run() {
                     Log.i(TAG, "disconnected");
 
-                    //Toast.makeText(getApplicationContext(),
-                     //       "Disconnect", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),
+                            "Disconnect", Toast.LENGTH_SHORT).show();
+                    mSocket.connect();
 
                 }
             });
@@ -584,8 +648,8 @@ public class HomeActivity extends AppCompatActivity
                 @Override
                 public void run() {
                     Log.e(TAG, args[0].toString());
-//                    Toast.makeText(getApplicationContext(),
-//                            "Lỗi cập nhật dữ liệu", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),
+                            "Lỗi cập nhật dữ liệu", Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -623,8 +687,35 @@ public class HomeActivity extends AppCompatActivity
                             double SulfideMax = jsonObj.getDouble("SulfideMax");
                             String NgayTao = jsonObj.getString("Datetime_Packet");
 
+                            double [] arrValue=new double[]{PH,Salt,Oxy,Temp,H2S,NH3,NH4Max,NH4Min,NO2Max,NO2Min,SulfideMax,SulfideMin};
+
+                            String time=XuLyThoiGian.StringToDatetimeString(Time_Package);
+                            String [] arrTime=time.split(" ");
+                            time=arrTime[1];
+//                            Toast.makeText(getApplicationContext(),arrTime[1],Toast.LENGTH_LONG).show();
+
+                            addEntryAndLabel(entriesPH,labelsPH,PH,count,time);
+                            addEntryAndLabel(entriesSalt,labelsSalt,Salt,count,time);
+                            addEntryAndLabel(entriesH2S,labelsH2S,H2S,count,time);
+                            addEntryAndLabel(entriesH2SMax,labelsH2SMax,SulfideMax,count,time);
+                            addEntryAndLabel(entriesH2SMin,labelsH2SMin,SulfideMin,count,time);
+                            addEntryAndLabel(entriesNH3,labelsNH3,NH3,count,time);
+                            addEntryAndLabel(entriesNH4Max,labelsNH4Max,NH4Max,count,time);
+                            addEntryAndLabel(entriesNH4Min,labelsNH4Min,NH4Min,count,time);
+                            addEntryAndLabel(entriesNO2Max,labelsNO2Max,NO2Max,count,time);
+                            addEntryAndLabel(entriesNO2Min,labelsNO2Min,NO2Min,count,time);
+                            addEntryAndLabel(entriesOxy,labelsOxy,Oxy,count,time);
+                            addEntryAndLabel(entriesTemp,labelsTemp,Temp,count,time);
+
+
+                            System.out.println("size graph:"+listGraph.size());
+                            System.out.println("cout:"+count);
+
+                            adapter.notifyDataSetChanged();
+
                             Datapackage datapackage = new Datapackage(-1, -1, Time_Package, PH, Salt, Temp, Oxy, H2S, NH3, NH4Max, NH4Min, NO2Min, SulfideMin, NO2Max, SulfideMax, NgayTao);
                             updateView(datapackage);
+                            count++;
                         }
 
 
@@ -636,4 +727,9 @@ public class HomeActivity extends AppCompatActivity
             });
         }
     };
+
+    private void addEntryAndLabel(ArrayList<Entry> entries,ArrayList<String> labels, double value, int index, String time){
+        entries.add(new Entry((float) value,index));
+        labels.add(time);
+    }
 }

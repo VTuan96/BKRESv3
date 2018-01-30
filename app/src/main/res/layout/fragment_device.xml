@@ -1,13 +1,24 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.pdp.bkresv2.fragment.DeviceFragment">
+    tools:context="com.pdp.bkresv2.fragment.DeviceFragment"
+    android:orientation="vertical">
 
     <!-- TODO: Update blank fragment layout -->
     <TextView
+        android:id="@+id/txtItemContent"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:drawableStart="@drawable/ic_cached_black_24dp"
+        android:text="Chưa có dữ liệu" />
+
+    <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:id="@+id/rvItemBieuDoThongKe"></android.support.v7.widget.RecyclerView>
 
-</FrameLayout>
+
+</LinearLayout>
