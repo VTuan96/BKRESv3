@@ -1,6 +1,8 @@
 package com.pdp.bkresv2.activity;
 
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -140,26 +142,94 @@ public class BieuDoThongKeActivity extends AppCompatActivity {
     }
 
 
-    public class DownloadData extends AsyncTask<Void,Void,Void>{
+    public class DownloadData extends AsyncTask<Void,Void,ArrayList<Graph>>{
+        public ArrayList<Graph> listGraph=new ArrayList<>();
+
+        public DownloadData(ArrayList<Graph> listGraph) {
+            this.listGraph = listGraph;
+        }
 
         @Override
-        protected Void doInBackground(Void... params) {
-            listGraph= new ArrayList<>();
-            for (int i=1;i<=12;i++){
-                getDataThongKe(i);
+        protected void onPreExecute() {
+            int size=12;
+            for (int i=1;i<=size;i++){
+                getDataThongKe(i,listGraph);
+            }
+            super.onPreExecute();
+        }
+
+        @Override
+        protected ArrayList<Graph> doInBackground(Void... voids) {
+
+
+            return listGraph;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Graph> graphs) {
+            System.out.println(graphs.size()+"");
+            super.onPostExecute(graphs);
+        }
+    }
+
+    public void getDataThongKe(final int tempSelectThongSo, final ArrayList<Graph> listGraph) {
+
+        Uri builder = Uri.parse(Constant.URL + Constant.API_GET_DATA_THONGKE)
+                .buildUpon()
+                .appendQueryParameter("strCode", "QN290394")
+                .appendQueryParameter("time", tmpNgayThangNam)
+                .appendQueryParameter("paramId", String.valueOf(tempSelectThongSo))
+                .appendQueryParameter("deviceId", tmpSelectedDeviceId).build();
+
+        downloadJSON = new DownloadJSON(this);
+
+
+        downloadJSON.GetJSON(builder, new DownloadJSON.DownloadJSONCallBack() {
+            @Override
+            public void onSuccess(String msgData) {
+                try{
+                    //JSONObject jsonObj = new JSONObject(msgData);
+                    JSONArray jsonArray = new JSONArray(msgData);
+                    if(jsonArray.length()==0){
+//                        txtContent.setVisibility(View.VISIBLE);
+                    }
+                    else{
+                        String nameGraph=arr_thongso[tempSelectThongSo-1];
+                        ArrayList<Entry> entries = new ArrayList<>();
+                        ArrayList labels = new ArrayList<String>();
+
+                        for(int i=0; i<jsonArray.length(); i++){
+                            JSONObject objTmp = jsonArray.getJSONObject(i);
+                            double value = objTmp.getDouble("value");
+                            String time = objTmp.getString("time");
+                            String[] words = time.split("\\s");
+                            Log.d("time",words[0]+words[1]);
+                            entries.add(new Entry((float)value, i));
+                            labels.add(words[1]);
+                        }
+                        Graph graph=new Graph(nameGraph,entries,labels);
+                        listGraph.add(graph);
+                        txtContent.setVisibility(View.GONE);
+
+                        graphAdapter=new GraphAdapter(listGraph);
+                        graphAdapter.notifyDataSetChanged();
+                        rvBieuDo.setAdapter(graphAdapter);
+                        System.out.println("size "+listGraph.size());
+
+                        Log.d("size graph",jsonArray.length()+"");
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
 
-            Log.d("size",listGraph.size()+"");
-            return null;
-        }
+            @Override
+            public void onFail(String msgError) {
+//                progress.dismiss();
+                Log.i("Error", msgError);
+            }
+        });
 
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            graphAdapter=new GraphAdapter(listGraph);
-            graphAdapter.notifyDataSetChanged();
-            rvBieuDo.setAdapter(graphAdapter);
-        }
     }
 
 
@@ -250,8 +320,15 @@ public class BieuDoThongKeActivity extends AppCompatActivity {
                     // arg2 = month
                     // arg3 = day
                     tmpNgayThangNam = arg1 +"-" + (arg2+1) + "-" + arg3;
-                    DownloadData downloadData=new DownloadData();
+                    DownloadData downloadData=new DownloadData(listGraph);
                     downloadData.execute();
+                    listGraph=downloadData.doInBackground();
+
+
+//                    listGraph=getListGraphs();
+                    graphAdapter=new GraphAdapter(listGraph);
+                    rvBieuDo.setAdapter(graphAdapter);
+                    System.out.println("size graph on date picker "+listGraph.size());
                 }
             };
 
@@ -284,13 +361,22 @@ public class BieuDoThongKeActivity extends AppCompatActivity {
                     int deviceID = listDevice.get(i).getId();
                     tmpSelectedDeviceId=String.valueOf(deviceID);
 
-                    listGraph= new ArrayList<>();
-                    DownloadData downloadData=new DownloadData();
+                    DownloadData downloadData=new DownloadData(listGraph);
                     downloadData.execute();
+                    listGraph=downloadData.listGraph;
 
+//                    listGraph=getListGraphs();
+                    System.out.println("size on menu "+listGraph.size());
                     graphAdapter=new GraphAdapter(listGraph);
-                    graphAdapter.notifyDataSetChanged();
                     rvBieuDo.setAdapter(graphAdapter);
+
+//                    listGraph= new ArrayList<>();
+//                    DownloadData downloadData=new DownloadData();
+//                    downloadData.execute();
+//
+//                    graphAdapter=new GraphAdapter(listGraph);
+//                    graphAdapter.notifyDataSetChanged();
+//                    rvBieuDo.setAdapter(graphAdapter);
 
                     return true;
                 }

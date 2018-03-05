@@ -1,5 +1,8 @@
 package com.pdp.bkresv2.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.github.mikephil.charting.data.Entry;
 
 import java.util.ArrayList;
@@ -8,7 +11,7 @@ import java.util.ArrayList;
  * Created by vutuan on 12/12/2017.
  */
 
-public class Graph{
+public class Graph implements Parcelable{
     private String name_graph;
     private ArrayList<Entry> entries;
     private ArrayList<String> labels;
@@ -44,6 +47,16 @@ public class Graph{
     }
 
     public Graph() {
+
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
 
     }
 }

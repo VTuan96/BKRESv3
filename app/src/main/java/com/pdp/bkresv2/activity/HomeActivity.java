@@ -238,7 +238,7 @@ public class HomeActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_chart) {
-            Intent t = new Intent(HomeActivity.this, BieuDoThongKeActivity.class);
+            Intent t = new Intent(HomeActivity.this, BieuDoActivity.class);
             t.putExtra("customerObj", customer);
             t.putExtra("listLake", listLake);
             t.putExtra("listDevice", listDevice);
@@ -300,6 +300,7 @@ public class HomeActivity extends AppCompatActivity
         txt_Time_Update = (TextView) findViewById(R.id.txt_time_update);
         txt_Tittle = (TextView) findViewById(R.id.txt_title);
 
+        //create graph
         listGraph=new ArrayList<>();
         rvBieuDoThongKe= (RecyclerView) findViewById(R.id.rvBieuDoThongKe);
         rvBieuDoThongKe.setHasFixedSize(true);
@@ -317,7 +318,7 @@ public class HomeActivity extends AppCompatActivity
         Graph gNO2Min=new Graph(arrLabels[9],entriesNO2Min,labelsNO2Min);
         Graph gH2SMax=new Graph(arrLabels[10],entriesH2SMax,labelsH2SMax);
         Graph gH2SMin=new Graph(arrLabels[11],entriesH2SMin,labelsH2SMin);
-        Graph [] arrGraph=new Graph[]{gPH,gH2S,gH2SMax,gH2SMin,gNH3,gNH4Max,gNH4Min,gNO2Max,gNO2Min,gOxy,gSalt,gTemp};
+        Graph [] arrGraph=new Graph[]{gPH,gSalt,gTemp, gH2S,gH2SMax,gH2SMin,gNH3,gNH4Max,gNH4Min,gNO2Max,gNO2Min,gOxy};
         for (Graph g:arrGraph){
             listGraph.add(g);
         }
@@ -441,6 +442,8 @@ public class HomeActivity extends AppCompatActivity
                 .buildUpon()
                 .appendQueryParameter("HomeId", customer.getHomeId() + "").build();
         downloadJSON = new DownloadJSON(this);
+
+        System.out.println(builder.toString());
 
         downloadJSON.GetJSON(builder, new DownloadJSON.DownloadJSONCallBack() {
             @Override
@@ -691,9 +694,10 @@ public class HomeActivity extends AppCompatActivity
 
                             String time=XuLyThoiGian.StringToDatetimeString(Time_Package);
                             String [] arrTime=time.split(" ");
-                            time=arrTime[1];
+                            time=arrTime[1]; //gia tri thoi gian cua du lieu
 //                            Toast.makeText(getApplicationContext(),arrTime[1],Toast.LENGTH_LONG).show();
 
+                            //them gia tri thong so, va thoi gian vao bang bieu do
                             addEntryAndLabel(entriesPH,labelsPH,PH,count,time);
                             addEntryAndLabel(entriesSalt,labelsSalt,Salt,count,time);
                             addEntryAndLabel(entriesH2S,labelsH2S,H2S,count,time);
@@ -708,10 +712,12 @@ public class HomeActivity extends AppCompatActivity
                             addEntryAndLabel(entriesTemp,labelsTemp,Temp,count,time);
 
 
-                            System.out.println("size graph:"+listGraph.size());
+//                            System.out.println("size graph:"+listGraph.size());
                             System.out.println("cout:"+count);
 
+                            adapter=new GraphAdapter(listGraph);
                             adapter.notifyDataSetChanged();
+                            rvBieuDoThongKe.setAdapter(adapter);
 
                             Datapackage datapackage = new Datapackage(-1, -1, Time_Package, PH, Salt, Temp, Oxy, H2S, NH3, NH4Max, NH4Min, NO2Min, SulfideMin, NO2Max, SulfideMax, NgayTao);
                             updateView(datapackage);
