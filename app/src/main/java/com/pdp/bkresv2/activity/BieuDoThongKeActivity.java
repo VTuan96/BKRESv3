@@ -365,18 +365,9 @@ public class BieuDoThongKeActivity extends AppCompatActivity {
                     downloadData.execute();
                     listGraph=downloadData.listGraph;
 
-//                    listGraph=getListGraphs();
                     System.out.println("size on menu "+listGraph.size());
                     graphAdapter=new GraphAdapter(listGraph);
                     rvBieuDo.setAdapter(graphAdapter);
-
-//                    listGraph= new ArrayList<>();
-//                    DownloadData downloadData=new DownloadData();
-//                    downloadData.execute();
-//
-//                    graphAdapter=new GraphAdapter(listGraph);
-//                    graphAdapter.notifyDataSetChanged();
-//                    rvBieuDo.setAdapter(graphAdapter);
 
                     return true;
                 }

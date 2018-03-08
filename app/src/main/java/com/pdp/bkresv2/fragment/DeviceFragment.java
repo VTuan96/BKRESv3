@@ -1,27 +1,18 @@
 package com.pdp.bkresv2.fragment;
 
 
-import android.app.DatePickerDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
+
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.DatePicker;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.mikephil.charting.data.Entry;
 import com.pdp.bkresv2.R;
@@ -30,7 +21,6 @@ import com.pdp.bkresv2.adapter.GraphAdapter;
 import com.pdp.bkresv2.model.Graph;
 import com.pdp.bkresv2.task.DownloadJSON;
 import com.pdp.bkresv2.utils.Constant;
-import com.pdp.bkresv2.utils.XuLyThoiGian;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -101,6 +91,8 @@ public class DeviceFragment extends Fragment {
 
         adapter=new GraphAdapter(listGraph);
         rvItemBieuDoThongKe.setAdapter(adapter);
+
+        //lay du lieu bieu do cua 12 thong so
         for (int i=1;i<=12;i++){
             getDataThongKe(i);
         }
@@ -121,6 +113,7 @@ public class DeviceFragment extends Fragment {
         rvItemBieuDoThongKe= (RecyclerView) v.findViewById(R.id.rvItemBieuDoThongKe);
     }
 
+    //lay du lieu ung voi tung thong so
     public void getDataThongKe(final int tempSelectThongSo) {
         Uri builder = Uri.parse(Constant.URL + Constant.API_GET_DATA_THONGKE)
                 .buildUpon()
