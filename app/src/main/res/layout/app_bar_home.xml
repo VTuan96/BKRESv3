@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@style/AppTheme.NoActionBar"
     android:fitsSystemWindows="true"
     tools:context="com.pdp.bkresv2.activity.HomeActivity">
 
@@ -28,7 +29,6 @@
         android:id="@+id/pagerGiamSatHeThong"
         android:layout_width="match_parent"
         android:layout_height="match_parent"></android.support.v4.view.ViewPager>
-
 
 
 </android.support.design.widget.CoordinatorLayout>

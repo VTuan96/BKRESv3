@@ -22,6 +22,24 @@ public class Graph implements Parcelable{
         this.labels = labels;
     }
 
+    protected Graph(Parcel in) {
+        name_graph = in.readString();
+        entries = in.createTypedArrayList(Entry.CREATOR);
+        labels = in.createStringArrayList();
+    }
+
+    public static final Creator<Graph> CREATOR = new Creator<Graph>() {
+        @Override
+        public Graph createFromParcel(Parcel in) {
+            return new Graph(in);
+        }
+
+        @Override
+        public Graph[] newArray(int size) {
+            return new Graph[size];
+        }
+    };
+
     public String getName_graph() {
         return name_graph;
     }
@@ -57,6 +75,8 @@ public class Graph implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-
+        parcel.writeString(name_graph);
+        parcel.writeTypedList(entries);
+        parcel.writeStringList(labels);
     }
 }

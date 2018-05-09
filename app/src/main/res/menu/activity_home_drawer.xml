@@ -17,7 +17,7 @@
         <item
             android:id="@+id/nav_setting"
             android:icon="@drawable/ic_menu_manage"
-            android:title="Cài đặt" />
+            android:title="Thiết lập mức ngưỡng" />
 
         <item
             android:id="@+id/nav_info"

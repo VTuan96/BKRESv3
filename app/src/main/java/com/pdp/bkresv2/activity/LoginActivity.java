@@ -181,8 +181,6 @@ public class LoginActivity extends AppCompatActivity {
 
                                 Customer customer = new Customer(Id, CustomerGuid, Username, Email, PasswordFormatId, PasswordSalt, Password, HomeId, TinhId);
 
-
-
                                 Toast.makeText(LoginActivity.this, Username + " đăng nhập thành công", Toast.LENGTH_SHORT).show();
 
                                 //Chuyen Activity

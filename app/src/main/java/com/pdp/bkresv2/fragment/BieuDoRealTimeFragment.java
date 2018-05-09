@@ -3,12 +3,18 @@ package com.pdp.bkresv2.fragment;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -29,6 +35,7 @@ import android.widget.Toast;
 import com.github.mikephil.charting.data.Entry;
 import com.pdp.bkresv2.R;
 import com.pdp.bkresv2.activity.HomeActivity;
+import com.pdp.bkresv2.activity.SettingsActivity;
 import com.pdp.bkresv2.adapter.CustomPagerPagerGiamSat;
 import com.pdp.bkresv2.adapter.GraphAdapter;
 import com.pdp.bkresv2.model.Customer;
@@ -60,6 +67,9 @@ public class BieuDoRealTimeFragment extends Fragment {
     DownloadJSON downloadJSON;
     ProgressDialog pDialog;
 
+    public double PH_Max, PH_Min, Temp_Max, Temp_Min, Salt_Max, Salt_Min, Oxy_Max, Oxy_Min, H2S_Max, H2S_Min,NO2_Max, NO2_Min,NH4_Max,NH4_Min;
+
+
     private final int REQUEST_SETTING_CONFIG = 111;
 
     //Widget
@@ -75,6 +85,7 @@ public class BieuDoRealTimeFragment extends Fragment {
     private ArrayList<Graph> listGraph=new ArrayList<>();
     private GraphAdapter adapter=new GraphAdapter(listGraph);
     private int count=0;
+    private String time="";
 
     //All components of all graphs
     private ArrayList<Entry> entriesPH=new ArrayList<>();
@@ -437,9 +448,10 @@ public class BieuDoRealTimeFragment extends Fragment {
                     double NO2Max = jsonObj.getDouble("NO2Max");
                     double SulfideMin = jsonObj.getDouble("SulfideMin");
                     double SulfideMax = jsonObj.getDouble("SulfideMax");
+                    double Alkalinity = jsonObj.getDouble("Alkalinity");
                     String NgayTao = jsonObj.getString("NgayTao");
 
-                    Datapackage datapackage = new Datapackage(Id, DeviceId, Time_Package, PH, Salt, Temp, Oxy, H2S, NH3, NH4Max, NH4Min, NO2Min, SulfideMin, NO2Max, SulfideMax, NgayTao);
+                    Datapackage datapackage = new Datapackage(Id, DeviceId, Time_Package, PH, Salt, Temp, Oxy, H2S, NH3, NH4Max, NH4Min, NO2Min, SulfideMin, NO2Max, SulfideMax, Alkalinity, NgayTao);
                     updateView(datapackage);
 
                 } catch (JSONException e) {
@@ -459,10 +471,6 @@ public class BieuDoRealTimeFragment extends Fragment {
     public void updateView(Datapackage datapackage){
         txt_Tittle.setText("Ao " + selectedLake + " - Thiết bị " + selectedDevice);
         txt_Time_Update.setText("Cập nhật: " + XuLyThoiGian.StringToDatetimeString(datapackage.getTime_Package()));
-
-
-//        adapter=new GraphAdapter(listGraph);
-//        rvBieuDoThongKe.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
 
@@ -476,14 +484,6 @@ public class BieuDoRealTimeFragment extends Fragment {
 
     }
 
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//
-//        adapter=new GraphAdapter(listGraph);
-//        rvBieuDoThongKe.setAdapter(adapter);
-//        adapter.notifyDataSetChanged();
-//    }
 
     @Override
     public void onDestroyView() {
@@ -570,11 +570,12 @@ public class BieuDoRealTimeFragment extends Fragment {
                             double NO2Max = jsonObj.getDouble("NO2Max");
                             double SulfideMin = jsonObj.getDouble("SulfideMin");
                             double SulfideMax = jsonObj.getDouble("SulfideMax");
+                            double Alkalinity= jsonObj.getDouble("Alkalinity");
                             String NgayTao = jsonObj.getString("Datetime_Packet");
 
                             double [] arrValue=new double[]{PH,Salt,Oxy,Temp,H2S,NH3,NH4Max,NH4Min,NO2Max,NO2Min,SulfideMax,SulfideMin};
 
-                            String time=XuLyThoiGian.StringToDatetimeString(Time_Package);
+                            time=XuLyThoiGian.StringToDatetimeString(Time_Package);
                             String [] arrTime=time.split(" ");
                             time=arrTime[1]; //gia tri thoi gian cua du lieu
 //                            Toast.makeText(getApplicationContext(),arrTime[1],Toast.LENGTH_LONG).show();
@@ -601,9 +602,18 @@ public class BieuDoRealTimeFragment extends Fragment {
                             adapter.notifyDataSetChanged();
                             rvBieuDoThongKe.setAdapter(adapter);
 
-                            Datapackage datapackage = new Datapackage(-1, -1, Time_Package, PH, Salt, Temp, Oxy, H2S, NH3, NH4Max, NH4Min, NO2Min, SulfideMin, NO2Max, SulfideMax, NgayTao);
+                            Datapackage datapackage = new Datapackage(-1, -1, Time_Package, PH, Salt, Temp, Oxy, H2S, NH3, NH4Max, NH4Min, NO2Min, SulfideMin, NO2Max, SulfideMax,Alkalinity, NgayTao);
                             updateView(datapackage);
                             count++;
+
+                            //get settings of data
+                            getPreferences();
+                            //check current data and data on settings
+                            checkParameter(PH,PH_Min,PH_Max);
+                            checkParameter(Temp,Temp_Min,Temp_Max);
+                            checkParameter(Oxy,Oxy_Min,Oxy_Max);
+                            checkParameter(Salt,Salt_Min,Salt_Max);
+
                         }
 
 
@@ -616,9 +626,56 @@ public class BieuDoRealTimeFragment extends Fragment {
         }
     };
 
+    //add Entry and label into a graph
     private void addEntryAndLabel(ArrayList<Entry> entries,ArrayList<String> labels, double value, int index, String time){
-        entries.add(new Entry((float) value,index));
+        entries.add(new Entry(index,(float) value));
         labels.add(time);
     }
+
+    //show warining about out of range data
+    private void showWarning(){
+        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getContext())
+                .setSmallIcon(R.drawable.icon)
+                .setContentTitle("Cảnh báo")
+                .setContentText("Thông số bị vượt ngưỡng lúc "+time+"!")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        mBuilder.setSound(alarmSound);
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getContext());
+        notificationManager.notify(100,mBuilder.build());
+
+    }
+
+    //get data on settings
+    private void getPreferences(){
+        SharedPreferences preferences=PreferenceManager.getDefaultSharedPreferences(getContext());
+        PH_Max =  preferences.getFloat(SettingsActivity.KEY_PH_MAX, Constant.DEFAULT_PH_MAX);
+        PH_Min =  preferences.getFloat(SettingsActivity.KEY_PH_MIN, Constant.DEFAULT_PH_MIN);
+
+        Temp_Max =  preferences.getFloat(SettingsActivity.KEY_TEMP_MAX, Constant.DEFAULT_TEMP_MAX);
+        Temp_Min =  preferences.getFloat(SettingsActivity.KEY_TEMP_MIN, Constant.DEFAULT_TEMP_MIN);
+
+        Salt_Max =  preferences.getFloat(SettingsActivity.KEY_SALT_MAX, Constant.DEFAULT_SALT_MAX);
+        Salt_Min =  preferences.getFloat(SettingsActivity.KEY_SALT_MIN, Constant.DEFAULT_SALT_MIN);
+
+        Oxy_Max =  preferences.getFloat(SettingsActivity.KEY_OXY_MAX, Constant.DEFAULT_OXY_MAX);
+        Oxy_Min =  preferences.getFloat(SettingsActivity.KEY_OXY_MIN, Constant.DEFAULT_OXY_MIN);
+
+        H2S_Max =  preferences.getFloat(SettingsActivity.KEY_H2S_MAX, Constant.DEFAULT_H2S_MAX);
+        H2S_Min =  preferences.getFloat(SettingsActivity.KEY_H2S_MIN, Constant.DEFAULT_H2S_MIN);
+        NH4_Max =  preferences.getFloat(SettingsActivity.KEY_NH4_MAX, Constant.DEFAULT_NH4_MAX);
+        NH4_Min =  preferences.getFloat(SettingsActivity.KEY_NH4_MIN, Constant.DEFAULT_NH4_MIN);
+        NO2_Max =  preferences.getFloat(SettingsActivity.KEY_NO2_MAX, Constant.DEFAULT_NO2_MAX);
+        NO2_Min =  preferences.getFloat(SettingsActivity.KEY_NO2_MIN, Constant.DEFAULT_NO2_MIN);
+    }
+
+    //check limitted of parameter. if it out of range => show warning
+    private void checkParameter(double parameter, double min, double max){
+        if (parameter < min || parameter > max){
+            showWarning();
+        }
+    }
+
 
 }

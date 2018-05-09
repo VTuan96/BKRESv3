@@ -19,11 +19,11 @@
             android:layout_height="wrap_content"
             android:textColor="@color/colorPrimaryDark"
             android:textStyle="bold"
-            android:textSize="20dp"
+            android:textSize="18dp"
             android:text=""/>
         <com.github.mikephil.charting.charts.LineChart
             android:layout_width="match_parent"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="6dp"
             android:layout_height="240dip"
             android:id="@+id/graph" />
 

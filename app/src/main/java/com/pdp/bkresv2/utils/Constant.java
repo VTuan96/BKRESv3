@@ -25,8 +25,11 @@ public class Constant {
     public static final float DEFAULT_OXY_MIN = 3.5f;
     public static final float DEFAULT_PH_MAX = 9f;
     public static final float DEFAULT_PH_MIN = 7f;
-    public static final float DEFAULT_NH3 = 0.3f;
-    public static final float DEFAULT_H2S = 0.05f;
-    public static final float DEFAULT_NO2 = 1f;
+    public static final float DEFAULT_NH4_MAX = 0.3f;
+    public static final float DEFAULT_NH4_MIN = 0.0f;
+    public static final float DEFAULT_H2S_MAX = 0.05f;
+    public static final float DEFAULT_H2S_MIN = 0.0f;
+    public static final float DEFAULT_NO2_MAX = 1.0f;
+    public static final float DEFAULT_NO2_MIN = 0.0f;
 
 }

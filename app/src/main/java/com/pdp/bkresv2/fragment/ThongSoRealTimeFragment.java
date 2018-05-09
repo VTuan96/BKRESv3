@@ -2,8 +2,11 @@ package com.pdp.bkresv2.fragment;
 
 
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -21,6 +24,7 @@ import android.widget.Toast;
 
 import com.pdp.bkresv2.R;
 import com.pdp.bkresv2.activity.HomeActivity;
+import com.pdp.bkresv2.activity.SettingsActivity;
 import com.pdp.bkresv2.model.Customer;
 import com.pdp.bkresv2.model.Datapackage;
 import com.pdp.bkresv2.model.Device;
@@ -44,7 +48,7 @@ import io.socket.emitter.Emitter;
  * A simple {@link Fragment} subclass.
  */
 public class ThongSoRealTimeFragment extends Fragment {
-    TextView txt_Temp, txt_PH, txt_Oxy, txt_Salt, txt_NH4, txt_H2S, txt_NO2_Min, txt_NO2_Max, txt_NH4_Min, txt_NH4_Max, txt_H2S_Min, txt_H2S_Max;
+    TextView txt_Temp, txt_PH, txt_Oxy, txt_Salt, txt_NH4, txt_H2S, txt_NO2_Min, txt_NO2_Max, txt_NH4_Min, txt_NH4_Max, txt_H2S_Min, txt_H2S_Max, txt_Alkalinity;
     TextView txt_Time_Update, txt_Tittle;
     ArrayList<Lake> listLake = new ArrayList<>();
     ArrayList<Device> listDevice = new ArrayList<>();
@@ -55,6 +59,9 @@ public class ThongSoRealTimeFragment extends Fragment {
     Customer customer;
     DownloadJSON downloadJSON;
     ProgressDialog pDialog;
+
+    public double PH_Max, PH_Min, Temp_Max, Temp_Min, Salt_Max, Salt_Min, Oxy_Max, Oxy_Min, H2S_Max, H2S_Min,NO2_Max, NO2_Min,NH4_Max,NH4_Min;
+
 
     private Socket mSocket;
     final String TAG = "Socket IO";
@@ -112,7 +119,6 @@ public class ThongSoRealTimeFragment extends Fragment {
         return v;
     }
 
-
     public void initWidget(View v){
         txt_Temp = (TextView) v.findViewById(R.id.txt_temperature);
         txt_Time_Update = (TextView) v.findViewById(R.id.txt_time_update_thong_so);
@@ -128,6 +134,7 @@ public class ThongSoRealTimeFragment extends Fragment {
         txt_H2S_Min = (TextView) v.findViewById(R.id.txt_Sulfide_Min);
         txt_H2S_Max = (TextView) v.findViewById(R.id.txt_Sulfide_Max);
         txt_Tittle = (TextView) v.findViewById(R.id.txt_title_thong_so);
+        txt_Alkalinity= (TextView) v.findViewById(R.id.txt_Alkalinity);
     }
 
 
@@ -356,9 +363,10 @@ public class ThongSoRealTimeFragment extends Fragment {
                     double NO2Max = jsonObj.getDouble("NO2Max");
                     double SulfideMin = jsonObj.getDouble("SulfideMin");
                     double SulfideMax = jsonObj.getDouble("SulfideMax");
+                    double Alkalinity = jsonObj.getDouble("Alkalinity");
                     String NgayTao = jsonObj.getString("NgayTao");
 
-                    Datapackage datapackage = new Datapackage(Id, DeviceId, Time_Package, PH, Salt, Temp, Oxy, H2S, NH3, NH4Max, NH4Min, NO2Min, SulfideMin, NO2Max, SulfideMax, NgayTao);
+                    Datapackage datapackage = new Datapackage(Id, DeviceId, Time_Package, PH, Salt, Temp, Oxy, H2S, NH3, NH4Max, NH4Min, NO2Min, SulfideMin, NO2Max, SulfideMax,Alkalinity, NgayTao);
                     updateView(datapackage);
 
                 } catch (JSONException e) {
@@ -390,6 +398,11 @@ public class ThongSoRealTimeFragment extends Fragment {
         txt_NH4_Max .setText(datapackage.getNH4Max()+"");
         txt_H2S_Min.setText(datapackage.getSulfideMin()+"");
         txt_H2S_Max.setText(datapackage.getSulfideMax()+"");
+
+        String alkal=String.valueOf(datapackage.getAlkalinity());
+        alkal=alkal.substring(0,6)+"...";
+        txt_Alkalinity.setText(alkal);
+
     }
 
     @Override
@@ -425,7 +438,7 @@ public class ThongSoRealTimeFragment extends Fragment {
                 @Override
                 public void run() {
                     Log.i(TAG, "disconnected");
-
+                    mSocket.connect();
                     //Toast.makeText(getApplicationContext(),
                     //       "Disconnect", Toast.LENGTH_SHORT).show();
 
@@ -478,12 +491,21 @@ public class ThongSoRealTimeFragment extends Fragment {
                             double NO2Max = jsonObj.getDouble("NO2Max");
                             double SulfideMin = jsonObj.getDouble("SulfideMin");
                             double SulfideMax = jsonObj.getDouble("SulfideMax");
+                            double Alkalinity = jsonObj.getDouble("Alkalinity");
                             String NgayTao = jsonObj.getString("Datetime_Packet");
 
-                            Datapackage datapackage = new Datapackage(-1, -1, Time_Package, PH, Salt, Temp, Oxy, H2S, NH3, NH4Max, NH4Min, NO2Min, SulfideMin, NO2Max, SulfideMax, NgayTao);
+                            Datapackage datapackage = new Datapackage(-1, -1, Time_Package, PH, Salt, Temp, Oxy, H2S, NH3, NH4Max, NH4Min, NO2Min, SulfideMin, NO2Max, SulfideMax,Alkalinity, NgayTao);
                             updateView(datapackage);
-                        }
 
+                            //get settings of data
+                            getPreferences();
+                            //check current data and data on settings
+                            setColorTextWarning(PH,PH_Min,PH_Max,txt_PH);
+                            setColorTextWarning(Oxy,Oxy_Min,Oxy_Max,txt_Oxy);
+                            setColorTextWarning(Salt,Salt_Min,Salt_Max,txt_Salt);
+                            setColorTextWarning(Temp,Temp_Min,Temp_Max,txt_Temp);
+
+                        }
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -494,4 +516,44 @@ public class ThongSoRealTimeFragment extends Fragment {
         }
     };
 
+    //change color of text parameter if it's out of range
+    private void setColorTextWarning(double param, double min, double max, TextView txtParam){
+        if (param>max || param<min){
+            txtParam.setTextColor(Color.RED);
+        } else {
+            txtParam.setTextColor(getResources().getColor(R.color.colorParameter));
+        }
+    }
+
+
+    //get data on settings
+    private void getPreferences(){
+        SharedPreferences preferences= PreferenceManager.getDefaultSharedPreferences(getContext());
+        PH_Max =  preferences.getFloat(SettingsActivity.KEY_PH_MAX, Constant.DEFAULT_PH_MAX);
+        PH_Min =  preferences.getFloat(SettingsActivity.KEY_PH_MIN, Constant.DEFAULT_PH_MIN);
+
+        Temp_Max =  preferences.getFloat(SettingsActivity.KEY_TEMP_MAX, Constant.DEFAULT_TEMP_MAX);
+        Temp_Min =  preferences.getFloat(SettingsActivity.KEY_TEMP_MIN, Constant.DEFAULT_TEMP_MIN);
+
+        Salt_Max =  preferences.getFloat(SettingsActivity.KEY_SALT_MAX, Constant.DEFAULT_SALT_MAX);
+        Salt_Min =  preferences.getFloat(SettingsActivity.KEY_SALT_MIN, Constant.DEFAULT_SALT_MIN);
+
+        Oxy_Max =  preferences.getFloat(SettingsActivity.KEY_OXY_MAX, Constant.DEFAULT_OXY_MAX);
+        Oxy_Min =  preferences.getFloat(SettingsActivity.KEY_OXY_MIN, Constant.DEFAULT_OXY_MIN);
+
+        H2S_Max =  preferences.getFloat(SettingsActivity.KEY_H2S_MAX, Constant.DEFAULT_H2S_MAX);
+        H2S_Min =  preferences.getFloat(SettingsActivity.KEY_H2S_MIN, Constant.DEFAULT_H2S_MIN);
+        NH4_Max =  preferences.getFloat(SettingsActivity.KEY_NH4_MAX, Constant.DEFAULT_NH4_MAX);
+        NH4_Min =  preferences.getFloat(SettingsActivity.KEY_NH4_MIN, Constant.DEFAULT_NH4_MIN);
+        NO2_Max =  preferences.getFloat(SettingsActivity.KEY_NO2_MAX, Constant.DEFAULT_NO2_MAX);
+        NO2_Min =  preferences.getFloat(SettingsActivity.KEY_NO2_MIN, Constant.DEFAULT_NO2_MIN);
+    }
+
+    //check limit of parameter
+    private boolean checkParameter(double parameter, double min, double max){
+        if (parameter < min || parameter > max){
+            return true; //if out of range
+        }
+        return false; //if in range
+    }
 }

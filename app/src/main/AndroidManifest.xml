@@ -32,7 +32,7 @@
             android:label="Thư góp ý" />
         <activity
             android:name=".activity.SettingsActivity"
-            android:label="Cài đặt"
+            android:label="Thiết lập mức ngưỡng"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name=".activity.BieuDoActivity"

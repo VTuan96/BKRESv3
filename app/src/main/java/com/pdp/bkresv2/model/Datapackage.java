@@ -20,9 +20,10 @@ public class Datapackage {
     double NO2Max;
     double SulfideMin;
     double SulfideMax;
+    double Alkalinity;
     String NgayTao;
 
-    public Datapackage(int id, int deviceId, String time_Package, double PH, double salt, double temp, double oxy, double h2S, double NH3, double NH4Max, double NH4Min, double NO2Min, double sulfideMin, double NO2Max, double sulfideMax, String ngayTao) {
+    public Datapackage(int id, int deviceId, String time_Package, double PH, double salt, double temp, double oxy, double h2S, double NH3, double NH4Max, double NH4Min, double NO2Min, double sulfideMin, double NO2Max, double sulfideMax, double alkalinity, String ngayTao) {
         Id = id;
         DeviceId = deviceId;
         Time_Package = time_Package;
@@ -39,6 +40,15 @@ public class Datapackage {
         this.NO2Max = NO2Max;
         SulfideMax = sulfideMax;
         NgayTao = ngayTao;
+        Alkalinity=alkalinity;
+    }
+
+    public double getAlkalinity() {
+        return Alkalinity;
+    }
+
+    public void setAlkalinity(double alkalinity) {
+        Alkalinity = alkalinity;
     }
 
     public int getId() {

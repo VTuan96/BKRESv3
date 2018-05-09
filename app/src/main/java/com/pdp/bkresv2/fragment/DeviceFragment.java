@@ -145,18 +145,21 @@ public class DeviceFragment extends Fragment {
                             String time = objTmp.getString("time");
                             String[] words = time.split("\\s");
                             Log.d("time",words[0]+words[1]);
-                            entries.add(new Entry((float)value, i));
+                            entries.add(new Entry(i,(float)value));
                             labels.add(words[1]);
                         }
                         Graph graph=new Graph(nameGraph,entries,labels);
-                        listGraph.add(graph);
-                        if (listGraph.size()>0){
-                            txtItemContent.setVisibility(View.GONE);
-                            adapter.notifyDataSetChanged();
-                            Log.i("size graph",listGraph.size()+"");
-                        } else {
-                            txtItemContent.setVisibility(View.VISIBLE);
+                        if (listGraph.size()<12){
+                            listGraph.add(graph);
+                            if (listGraph.size()>0){
+                                txtItemContent.setVisibility(View.GONE);
+                                adapter.notifyDataSetChanged();
+                                Log.i("size graph",listGraph.size()+"");
+                            } else {
+                                txtItemContent.setVisibility(View.VISIBLE);
+                            }
                         }
+
 
                     }
                 } catch (JSONException e) {

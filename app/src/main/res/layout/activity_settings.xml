@@ -22,8 +22,6 @@
         app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
 
-
-
     <LinearLayout
         android:id="@+id/layout_PH"
         android:layout_width="match_parent"
@@ -32,322 +30,158 @@
         android:orientation="vertical">
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Nồng độ PH"
             android:textStyle="bold"
-            android:textSize="@dimen/activity_horizontal_margin"
+            android:textSize="@dimen/activity_settings_title"
             android:layout_marginTop="@dimen/dimen_8dp"
             android:layout_marginLeft="@dimen/dimen_8dp"
             android:layout_marginRight="@dimen/dimen_8dp"
             android:textColor="@color/colorPrimary"/>
 
-        <LinearLayout
-
+        <org.florescu.android.rangeseekbar.RangeSeekBar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dimen_8dp"
             android:layout_marginLeft="@dimen/dimen_8dp"
             android:layout_marginRight="@dimen/dimen_8dp"
-            android:orientation="horizontal"
-            android:weightSum="4">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/dimen_8dp"
-                android:text="Max"
-                android:textStyle="bold"
-                android:layout_weight="1"/>
-            <EditText
-                android:id="@+id/edtxt_PH_Max"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/dimen_8dp"
-                android:text="Min"
-                android:textStyle="bold"
-                android:layout_weight="1"/>
-            <EditText
-                android:id="@+id/edtxt_PH_Min"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
-
-        </LinearLayout>
-    </LinearLayout>
-
-
-
-    <LinearLayout
-        android:id="@+id/layout_Temperature"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/layout_PH"
-        android:orientation="vertical">
+            android:id="@+id/sbPH"
+            app:valuesAboveThumbs="true"
+            app:textAboveThumbsColor="@android:color/holo_purple"
+            app:absoluteMinValue="14.0"
+            app:absoluteMaxValue="0.0" />
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Nhiệt độ"
             android:textStyle="bold"
-            android:textSize="@dimen/activity_horizontal_margin"
+            android:textSize="@dimen/activity_settings_title"
             android:layout_marginTop="@dimen/dimen_8dp"
             android:layout_marginLeft="@dimen/dimen_8dp"
             android:layout_marginRight="@dimen/dimen_8dp"
             android:textColor="@color/colorPrimary"/>
 
-        <LinearLayout
-
+        <org.florescu.android.rangeseekbar.RangeSeekBar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dimen_8dp"
             android:layout_marginLeft="@dimen/dimen_8dp"
             android:layout_marginRight="@dimen/dimen_8dp"
-            android:orientation="horizontal"
-            android:weightSum="4">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/dimen_8dp"
-                android:text="Max"
-                android:textStyle="bold"
-                android:layout_weight="1"/>
-            <EditText
-                android:id="@+id/edtxt_Temperature_Max"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/dimen_8dp"
-                android:text="Min"
-                android:textStyle="bold"
-                android:layout_weight="1"/>
-            <EditText
-                android:id="@+id/edtxt_Temperature_Min"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
-
-        </LinearLayout>
-    </LinearLayout>
-
-
-
-    <LinearLayout
-        android:id="@+id/layout_Oxy"
-        android:layout_below="@id/layout_Temperature"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+            android:id="@+id/sbTemp"
+            app:valuesAboveThumbs="true"
+            app:textAboveThumbsColor="@android:color/holo_purple"
+            app:absoluteMinValue="60.0"
+            app:absoluteMaxValue="0.0" />
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Nồng độ Oxy"
             android:textStyle="bold"
-            android:textSize="@dimen/activity_horizontal_margin"
+            android:textSize="@dimen/activity_settings_title"
             android:layout_marginTop="@dimen/dimen_8dp"
             android:layout_marginLeft="@dimen/dimen_8dp"
             android:layout_marginRight="@dimen/dimen_8dp"
             android:textColor="@color/colorPrimary"/>
 
-        <LinearLayout
-
+        <org.florescu.android.rangeseekbar.RangeSeekBar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dimen_8dp"
             android:layout_marginLeft="@dimen/dimen_8dp"
             android:layout_marginRight="@dimen/dimen_8dp"
-            android:orientation="horizontal"
-            android:weightSum="4">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/dimen_8dp"
-                android:text="Max"
-                android:textStyle="bold"
-                android:layout_weight="1"/>
-            <EditText
-                android:id="@+id/edtxt_Oxy_Max"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/dimen_8dp"
-                android:text="Min"
-                android:textStyle="bold"
-                android:layout_weight="1"/>
-            <EditText
-                android:id="@+id/edtxt_Oxy_Min"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
-
-        </LinearLayout>
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:id="@+id/layout_Salt"
-        android:layout_below="@+id/layout_Oxy"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+            android:id="@+id/sbOxy"
+            app:valuesAboveThumbs="true"
+            app:textAboveThumbsColor="@android:color/holo_purple"
+            app:absoluteMinValue="15.0"
+            app:absoluteMaxValue="0.0" />
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Nồng độ muối"
             android:textStyle="bold"
-            android:textSize="@dimen/activity_horizontal_margin"
+            android:textSize="@dimen/activity_settings_title"
             android:layout_marginTop="@dimen/dimen_8dp"
             android:layout_marginLeft="@dimen/dimen_8dp"
             android:layout_marginRight="@dimen/dimen_8dp"
             android:textColor="@color/colorPrimary"/>
 
-        <LinearLayout
-
+        <org.florescu.android.rangeseekbar.RangeSeekBar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dimen_8dp"
             android:layout_marginLeft="@dimen/dimen_8dp"
             android:layout_marginRight="@dimen/dimen_8dp"
-            android:orientation="horizontal"
-            android:weightSum="4">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/dimen_8dp"
-                android:text="Max"
-                android:textStyle="bold"
-                android:layout_weight="1"/>
-            <EditText
-                android:id="@+id/edtxt_Salt_Max"
-                android:inputType="numberDecimal"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/dimen_8dp"
-                android:text="Min"
-                android:textStyle="bold"
-                android:layout_weight="1"/>
-            <EditText
-                android:id="@+id/edtxt_Salt_Min"
-                android:inputType="numberDecimal"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
-
-        </LinearLayout>
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:id="@+id/layout_NH3"
-        android:layout_below="@+id/layout_Salt"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="2"
-        android:layout_marginTop="@dimen/dimen_8dp"
-        android:layout_marginLeft="@dimen/dimen_8dp"
-        android:layout_marginRight="@dimen/dimen_8dp"
-        android:orientation="horizontal">
+            android:id="@+id/sbSalt"
+            app:valuesAboveThumbs="true"
+            app:textAboveThumbsColor="@android:color/holo_purple"
+            app:absoluteMinValue="35.0"
+            app:absoluteMaxValue="5.0" />
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Amoniac tự do"
             android:textStyle="bold"
-            android:textSize="@dimen/activity_horizontal_margin"
-
-            android:layout_weight="1"
+            android:textSize="@dimen/activity_settings_title"
+            android:layout_marginTop="@dimen/dimen_8dp"
+            android:layout_marginLeft="@dimen/dimen_8dp"
+            android:layout_marginRight="@dimen/dimen_8dp"
             android:textColor="@color/colorPrimary"/>
 
-        <EditText
-            android:id="@+id/edt_NH3"
-            android:layout_width="0dp"
+        <org.florescu.android.rangeseekbar.RangeSeekBar
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="numberDecimal"
-            android:layout_weight="1"/>
-
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:id="@+id/layout_NO2"
-        android:layout_below="@+id/layout_NH3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="2"
-        android:layout_marginTop="@dimen/dimen_8dp"
-        android:layout_marginLeft="@dimen/dimen_8dp"
-        android:layout_marginRight="@dimen/dimen_8dp"
-        android:orientation="horizontal">
+            android:layout_marginLeft="@dimen/dimen_8dp"
+            android:layout_marginRight="@dimen/dimen_8dp"
+            android:id="@+id/sbNH4"
+            app:valuesAboveThumbs="true"
+            app:textAboveThumbsColor="@android:color/holo_purple"
+            app:absoluteMinValue="1.0"
+            app:absoluteMaxValue="0.0" />
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Nitrit NO2-"
+            android:text="Nồng độ NO2"
             android:textStyle="bold"
-            android:textSize="@dimen/activity_horizontal_margin"
-
-            android:layout_weight="1"
+            android:textSize="@dimen/activity_settings_title"
+            android:layout_marginTop="@dimen/dimen_8dp"
+            android:layout_marginLeft="@dimen/dimen_8dp"
+            android:layout_marginRight="@dimen/dimen_8dp"
             android:textColor="@color/colorPrimary"/>
 
-        <EditText
-            android:id="@+id/edt_NO2"
-            android:layout_width="0dp"
+        <org.florescu.android.rangeseekbar.RangeSeekBar
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="numberDecimal"
-            android:layout_weight="1"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layout_H2S"
-        android:layout_below="@+id/layout_NO2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="2"
-        android:layout_marginTop="@dimen/dimen_8dp"
-        android:layout_marginLeft="@dimen/dimen_8dp"
-        android:layout_marginRight="@dimen/dimen_8dp"
-        android:orientation="horizontal">
+            android:layout_marginLeft="@dimen/dimen_8dp"
+            android:layout_marginRight="@dimen/dimen_8dp"
+            android:id="@+id/sbNO2"
+            app:valuesAboveThumbs="true"
+            app:textAboveThumbsColor="@android:color/holo_purple"
+            app:absoluteMinValue="2.0"
+            app:absoluteMaxValue="0.0" />
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="H2S"
+            android:text="Nồng độ H2S"
             android:textStyle="bold"
-            android:textSize="@dimen/activity_horizontal_margin"
-
-            android:layout_weight="1"
+            android:textSize="@dimen/activity_settings_title"
+            android:layout_marginTop="@dimen/dimen_8dp"
+            android:layout_marginLeft="@dimen/dimen_8dp"
+            android:layout_marginRight="@dimen/dimen_8dp"
             android:textColor="@color/colorPrimary"/>
 
-        <EditText
-            android:id="@+id/edt_H2S"
-            android:layout_width="0dp"
+        <org.florescu.android.rangeseekbar.RangeSeekBar
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="numberDecimal"
-            android:layout_weight="1"/>
+            android:layout_marginLeft="@dimen/dimen_8dp"
+            android:layout_marginRight="@dimen/dimen_8dp"
+            android:id="@+id/sbH2S"
+            app:valuesAboveThumbs="true"
+            app:textAboveThumbsColor="@android:color/holo_purple"
+            app:absoluteMinValue="2.0"
+            app:absoluteMaxValue="0.0" />
 
     </LinearLayout>
 
