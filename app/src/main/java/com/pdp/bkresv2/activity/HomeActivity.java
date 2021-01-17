@@ -42,6 +42,9 @@ import com.pdp.bkresv2.model.Datapackage;
 import com.pdp.bkresv2.model.Device;
 import com.pdp.bkresv2.model.Graph;
 import com.pdp.bkresv2.model.Lake;
+import com.pdp.bkresv2.model.Project;
+import com.pdp.bkresv2.model.User;
+import com.pdp.bkresv2.service.ProjectService;
 import com.pdp.bkresv2.task.DownloadJSON;
 import com.pdp.bkresv2.utils.Constant;
 import com.pdp.bkresv2.utils.XuLyThoiGian;
@@ -61,7 +64,7 @@ import io.socket.emitter.Emitter;
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    public static Customer customer;
+    public static User customer;
     private final int REQUEST_SETTING_CONFIG = 111;
 
     ArrayList<Lake> listLake = new ArrayList<>();
@@ -74,7 +77,7 @@ public class HomeActivity extends AppCompatActivity
     private ViewPager pagerGiamSatHeThong;
     private CustomPagerPagerGiamSat adapterPager;
 
-
+    public static Project projectInfo = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,8 +101,10 @@ public class HomeActivity extends AppCompatActivity
         txt_Nav_Email= (TextView) hView.findViewById(R.id.txt_nav_email);
 
         Intent i = getIntent();
-        customer = (Customer) i.getSerializableExtra("customerObject");
-        getLakeAndDevice();
+        customer = (User) i.getSerializableExtra("customerObject");
+//        getLakeAndDevice();
+
+        getProjectInfo();
 
         String userName = customer.getUsername();
         String email = customer.getEmail();
@@ -109,6 +114,10 @@ public class HomeActivity extends AppCompatActivity
         pagerGiamSatHeThong= (ViewPager) findViewById(R.id.pagerGiamSatHeThong);
         adapterPager=new CustomPagerPagerGiamSat(getSupportFragmentManager(),getListFragments());
         pagerGiamSatHeThong.setAdapter(adapterPager);
+
+    }
+
+    private void getProjectInfo() {
 
     }
 
@@ -229,69 +238,69 @@ public class HomeActivity extends AppCompatActivity
         List<Fragment> list=new ArrayList<>();
         BieuDoRealTimeFragment bieuDoRealTimeFragment=new BieuDoRealTimeFragment();
         list.add(bieuDoRealTimeFragment);
-        ThongSoRealTimeFragment thongSoRealTimeFragment=new ThongSoRealTimeFragment();
-        list.add(thongSoRealTimeFragment);
+//        ThongSoRealTimeFragment thongSoRealTimeFragment=new ThongSoRealTimeFragment();
+//        list.add(thongSoRealTimeFragment);
 
         return list;
     }
 
-    public void getLakeAndDevice(){
-        Uri builder = Uri.parse(Constant.URL + Constant.API_GET_LAKE_AND_DEVICE)
-                .buildUpon()
-                .appendQueryParameter("HomeId", customer.getHomeId() + "").build();
-        DownloadJSON downloadJSON = new DownloadJSON(this);
-
-        System.out.println(builder.toString());
-
-        downloadJSON.GetJSON(builder, new DownloadJSON.DownloadJSONCallBack() {
-            @Override
-            public void onSuccess(String msgData) {
-                Log.i("Data", msgData);
-                if(msgData.length()>1){
-                    try {
-                        JSONArray jsonArray = new JSONArray(msgData);
-                        for(int i=0 ; i<jsonArray.length(); i++){
-                            JSONObject objTmp = jsonArray.getJSONObject(i);
-                            int LakeId = objTmp.getInt("LakeId");
-                            String Name = objTmp.getString("Name");
-                            int HomeId = objTmp.getInt("HomeId");
-                            String MapUrl = objTmp.getString("MapUrl");
-                            String CreateTime = objTmp.getString("CreateTime");
-                            Lake lakeObj = new Lake(LakeId, Name, HomeId,MapUrl, CreateTime);
-                            listLake.add(lakeObj);
-
-                            JSONArray jsonDeviceArray = objTmp.getJSONArray("listDevice");
-                            for(int j=0; j<jsonDeviceArray.length(); j++){
-                                JSONObject jsonDeviceObj = jsonDeviceArray.getJSONObject(j);
-                                int IdDevice = jsonDeviceObj.getInt("Id");
-                                String NameDevice = jsonDeviceObj.getString("Name");
-                                String ImeiDevice = jsonDeviceObj.getString("Imei");
-                                String CreateTimeDevice = jsonDeviceObj.getString("CreateTime");
-                                String WarningNumberPhone = jsonDeviceObj.getString("WarningNumberPhone");
-                                String WarningMail = jsonDeviceObj.getString("WarningMail");
-                                int LakeIdDevice = jsonDeviceObj.getInt("LakeId");
-                                Device deviceObj = new Device(IdDevice, NameDevice, ImeiDevice, CreateTimeDevice, WarningNumberPhone, WarningMail, LakeIdDevice);
-                                listDevice.add(deviceObj);
-                            }
-                        }
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                    Log.i("Number of Lake", "Lake: " + listLake.size() + " - Device:" + listDevice.size());
-
-
-
-                }
-            }
-
-            @Override
-            public void onFail(String msgError) {
-                Log.i("Error", msgError);
-            }
-        });
-    }
+//    public void getLakeAndDevice(){
+//        Uri builder = Uri.parse(Constant.URL + Constant.API_GET_LAKE_AND_DEVICE)
+//                .buildUpon()
+//                .appendQueryParameter("HomeId", customer.getHomeId() + "").build();
+//        DownloadJSON downloadJSON = new DownloadJSON(this);
+//
+//        System.out.println(builder.toString());
+//
+//        downloadJSON.GetJSON(builder, new DownloadJSON.DownloadJSONCallBack() {
+//            @Override
+//            public void onSuccess(String msgData) {
+//                Log.i("Data", msgData);
+//                if(msgData.length()>1){
+//                    try {
+//                        JSONArray jsonArray = new JSONArray(msgData);
+//                        for(int i=0 ; i<jsonArray.length(); i++){
+//                            JSONObject objTmp = jsonArray.getJSONObject(i);
+//                            int LakeId = objTmp.getInt("LakeId");
+//                            String Name = objTmp.getString("Name");
+//                            int HomeId = objTmp.getInt("HomeId");
+//                            String MapUrl = objTmp.getString("MapUrl");
+//                            String CreateTime = objTmp.getString("CreateTime");
+//                            Lake lakeObj = new Lake(LakeId, Name, HomeId,MapUrl, CreateTime);
+//                            listLake.add(lakeObj);
+//
+//                            JSONArray jsonDeviceArray = objTmp.getJSONArray("listDevice");
+//                            for(int j=0; j<jsonDeviceArray.length(); j++){
+//                                JSONObject jsonDeviceObj = jsonDeviceArray.getJSONObject(j);
+//                                int IdDevice = jsonDeviceObj.getInt("Id");
+//                                String NameDevice = jsonDeviceObj.getString("Name");
+//                                String ImeiDevice = jsonDeviceObj.getString("Imei");
+//                                String CreateTimeDevice = jsonDeviceObj.getString("CreateTime");
+//                                String WarningNumberPhone = jsonDeviceObj.getString("WarningNumberPhone");
+//                                String WarningMail = jsonDeviceObj.getString("WarningMail");
+//                                int LakeIdDevice = jsonDeviceObj.getInt("LakeId");
+//                                Device deviceObj = new Device(IdDevice, NameDevice, ImeiDevice, CreateTimeDevice, WarningNumberPhone, WarningMail, LakeIdDevice);
+//                                listDevice.add(deviceObj);
+//                            }
+//                        }
+//
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    Log.i("Number of Lake", "Lake: " + listLake.size() + " - Device:" + listDevice.size());
+//
+//
+//
+//                }
+//            }
+//
+//            @Override
+//            public void onFail(String msgError) {
+//                Log.i("Error", msgError);
+//            }
+//        });
+//    }
 
 
 }

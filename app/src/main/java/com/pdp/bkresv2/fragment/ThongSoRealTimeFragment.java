@@ -29,6 +29,7 @@ import com.pdp.bkresv2.model.Customer;
 import com.pdp.bkresv2.model.Datapackage;
 import com.pdp.bkresv2.model.Device;
 import com.pdp.bkresv2.model.Lake;
+import com.pdp.bkresv2.model.User;
 import com.pdp.bkresv2.task.DownloadJSON;
 import com.pdp.bkresv2.utils.Constant;
 import com.pdp.bkresv2.utils.XuLyThoiGian;
@@ -56,7 +57,7 @@ public class ThongSoRealTimeFragment extends Fragment {
     String selectedLake = " ";
     String selectedImeiDevice = "";
 
-    Customer customer;
+    User customer;
     DownloadJSON downloadJSON;
     ProgressDialog pDialog;
 
@@ -87,7 +88,7 @@ public class ThongSoRealTimeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v=inflater.inflate(R.layout.fragment_thong_so_real_time,container,false);
-        customer= HomeActivity.customer;
+        customer = HomeActivity.customer;
         initWidget(v);
         pDialog = new ProgressDialog(getContext());
 
@@ -100,7 +101,7 @@ public class ThongSoRealTimeFragment extends Fragment {
             }
         });
 
-        getLakeAndDevice();
+//        getLakeAndDevice();
 
         // Socket IO
         //mSocket.emit("authentication", "354725065508131");
@@ -152,7 +153,7 @@ public class ThongSoRealTimeFragment extends Fragment {
         alertDialog.show();
 
         final Spinner spinner_Lake = (Spinner)alertDialog.findViewById(R.id.spinner_lake);
-        final Spinner spinner_Device = (Spinner)alertDialog.findViewById(R.id.spinner_device);
+//        final Spinner spinner_Device = (Spinner)alertDialog.findViewById(R.id.spinner_device);
 
         if(listLake.size() == 0){
             Toast.makeText(getContext(), "Tài khoản này không quản lý thiết bị nào!", Toast.LENGTH_SHORT).show();
@@ -201,7 +202,7 @@ public class ThongSoRealTimeFragment extends Fragment {
                 ArrayAdapter<String> adapter2 =new ArrayAdapter<String>
                         (getContext(), android.R.layout.simple_spinner_item, arr);
                 adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spinner_Device.setAdapter(adapter2);
+//                spinner_Device.setAdapter(adapter2);
             }
 
             @Override
@@ -210,18 +211,18 @@ public class ThongSoRealTimeFragment extends Fragment {
             }
         });
 
-        spinner_Device.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                tempSelectedDevice = spinner_Device.getSelectedItem().toString();
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
+//        spinner_Device.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+//                tempSelectedDevice = spinner_Device.getSelectedItem().toString();
+//
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> adapterView) {
+//
+//            }
+//        });
 
         Button btn_Ok = (Button) alertDialog.findViewById(R.id.btn_Ok);
         btn_Ok.setOnClickListener(new View.OnClickListener() {
@@ -253,75 +254,75 @@ public class ThongSoRealTimeFragment extends Fragment {
         });
     }
 
-    public void getLakeAndDevice(){
-        Uri builder = Uri.parse(Constant.URL + Constant.API_GET_LAKE_AND_DEVICE)
-                .buildUpon()
-                .appendQueryParameter("HomeId", customer.getHomeId() + "").build();
-        downloadJSON = new DownloadJSON(getContext());
-
-        downloadJSON.GetJSON(builder, new DownloadJSON.DownloadJSONCallBack() {
-            @Override
-            public void onSuccess(String msgData) {
-                Log.i("Data", msgData);
-                if(msgData.length()>1){
-                    try {
-                        JSONArray jsonArray = new JSONArray(msgData);
-                        for(int i=0 ; i<jsonArray.length(); i++){
-                            JSONObject objTmp = jsonArray.getJSONObject(i);
-                            int LakeId = objTmp.getInt("LakeId");
-                            String Name = objTmp.getString("Name");
-                            int HomeId = objTmp.getInt("HomeId");
-                            String MapUrl = objTmp.getString("MapUrl");
-                            String CreateTime = objTmp.getString("CreateTime");
-                            Lake lakeObj = new Lake(LakeId, Name, HomeId,MapUrl, CreateTime);
-                            listLake.add(lakeObj);
-
-                            JSONArray jsonDeviceArray = objTmp.getJSONArray("listDevice");
-                            for(int j=0; j<jsonDeviceArray.length(); j++){
-                                JSONObject jsonDeviceObj = jsonDeviceArray.getJSONObject(j);
-                                int IdDevice = jsonDeviceObj.getInt("Id");
-                                String NameDevice = jsonDeviceObj.getString("Name");
-                                String ImeiDevice = jsonDeviceObj.getString("Imei");
-                                String CreateTimeDevice = jsonDeviceObj.getString("CreateTime");
-                                String WarningNumberPhone = jsonDeviceObj.getString("WarningNumberPhone");
-                                String WarningMail = jsonDeviceObj.getString("WarningMail");
-                                int LakeIdDevice = jsonDeviceObj.getInt("LakeId");
-                                Device deviceObj = new Device(IdDevice, NameDevice, ImeiDevice, CreateTimeDevice, WarningNumberPhone, WarningMail, LakeIdDevice);
-                                listDevice.add(deviceObj);
-                            }
-                        }
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                    Log.i("Number of Lake", "Lake: " + listLake.size() + " - Device:" + listDevice.size());
-
-                    if(listDevice.size()>0 && listLake.size()>0){
-                        selectedLake = listLake.get(0).getName();
-                        selectedDevice = listDevice.get(0).getName();
-                        selectedImeiDevice = listDevice.get(0).getImei();
-                        mSocket.emit("authentication", selectedImeiDevice);
-                        mSocket.emit("join", selectedImeiDevice);
-                        mSocket.on("new message", onDataReceive);
-                        Log.i("IMEI DEVICE SELECT", selectedImeiDevice);
-                        getDatapackageByDeviceName();
-                    } else {
-                        Toast.makeText(getContext(), "Tài khoản này không quản lý thiết bị nào!", Toast.LENGTH_SHORT).show();
-                    }
-
-
-                } else{
-                    Toast.makeText(getContext(), "Tài khoản " + customer.getUsername() + " không có thiết bị giám sát", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFail(String msgError) {
-                Log.i("Error", msgError);
-            }
-        });
-    }
+//    public void getLakeAndDevice(){
+//        Uri builder = Uri.parse(Constant.URL + Constant.API_GET_LAKE_AND_DEVICE)
+//                .buildUpon()
+//                .appendQueryParameter("HomeId", customer.getHomeId() + "").build();
+//        downloadJSON = new DownloadJSON(getContext());
+//
+//        downloadJSON.GetJSON(builder, new DownloadJSON.DownloadJSONCallBack() {
+//            @Override
+//            public void onSuccess(String msgData) {
+//                Log.i("Data", msgData);
+//                if(msgData.length()>1){
+//                    try {
+//                        JSONArray jsonArray = new JSONArray(msgData);
+//                        for(int i=0 ; i<jsonArray.length(); i++){
+//                            JSONObject objTmp = jsonArray.getJSONObject(i);
+//                            int LakeId = objTmp.getInt("LakeId");
+//                            String Name = objTmp.getString("Name");
+//                            int HomeId = objTmp.getInt("HomeId");
+//                            String MapUrl = objTmp.getString("MapUrl");
+//                            String CreateTime = objTmp.getString("CreateTime");
+//                            Lake lakeObj = new Lake(LakeId, Name, HomeId,MapUrl, CreateTime);
+//                            listLake.add(lakeObj);
+//
+//                            JSONArray jsonDeviceArray = objTmp.getJSONArray("listDevice");
+//                            for(int j=0; j<jsonDeviceArray.length(); j++){
+//                                JSONObject jsonDeviceObj = jsonDeviceArray.getJSONObject(j);
+//                                int IdDevice = jsonDeviceObj.getInt("Id");
+//                                String NameDevice = jsonDeviceObj.getString("Name");
+//                                String ImeiDevice = jsonDeviceObj.getString("Imei");
+//                                String CreateTimeDevice = jsonDeviceObj.getString("CreateTime");
+//                                String WarningNumberPhone = jsonDeviceObj.getString("WarningNumberPhone");
+//                                String WarningMail = jsonDeviceObj.getString("WarningMail");
+//                                int LakeIdDevice = jsonDeviceObj.getInt("LakeId");
+//                                Device deviceObj = new Device(IdDevice, NameDevice, ImeiDevice, CreateTimeDevice, WarningNumberPhone, WarningMail, LakeIdDevice);
+//                                listDevice.add(deviceObj);
+//                            }
+//                        }
+//
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    Log.i("Number of Lake", "Lake: " + listLake.size() + " - Device:" + listDevice.size());
+//
+//                    if(listDevice.size()>0 && listLake.size()>0){
+//                        selectedLake = listLake.get(0).getName();
+//                        selectedDevice = listDevice.get(0).getName();
+//                        selectedImeiDevice = listDevice.get(0).getImei();
+//                        mSocket.emit("authentication", selectedImeiDevice);
+//                        mSocket.emit("join", selectedImeiDevice);
+//                        mSocket.on("new message", onDataReceive);
+//                        Log.i("IMEI DEVICE SELECT", selectedImeiDevice);
+//                        getDatapackageByDeviceName();
+//                    } else {
+//                        Toast.makeText(getContext(), "Tài khoản này không quản lý thiết bị nào!", Toast.LENGTH_SHORT).show();
+//                    }
+//
+//
+//                } else{
+//                    Toast.makeText(getContext(), "Tài khoản " + customer.getUsername() + " không có thiết bị giám sát", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onFail(String msgError) {
+//                Log.i("Error", msgError);
+//            }
+//        });
+//    }
 
     public void getDatapackageByDeviceName(){
         pDialog.setMessage("Đang tải...");
@@ -366,8 +367,8 @@ public class ThongSoRealTimeFragment extends Fragment {
                     double Alkalinity = jsonObj.getDouble("Alkalinity");
                     String NgayTao = jsonObj.getString("NgayTao");
 
-                    Datapackage datapackage = new Datapackage(Id, DeviceId, Time_Package, PH, Salt, Temp, Oxy, H2S, NH3, NH4Max, NH4Min, NO2Min, SulfideMin, NO2Max, SulfideMax,Alkalinity, NgayTao);
-                    updateView(datapackage);
+                    Datapackage datapackage = new Datapackage();
+//                    updateView(datapackage);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -383,27 +384,27 @@ public class ThongSoRealTimeFragment extends Fragment {
         pDialog.dismiss();
     }
 
-    public void updateView(Datapackage datapackage){
-        txt_Tittle.setText("Ao " + selectedLake + " - Thiết bị " + selectedDevice);
-        txt_Time_Update.setText("Cập nhật: " + XuLyThoiGian.StringToDatetimeString(datapackage.getTime_Package()));
-        txt_Temp.setText(datapackage.getTemp()+"");
-        txt_PH.setText(datapackage.getPH()+"");
-        txt_Salt.setText(datapackage.getSalt()+"");
-        txt_Oxy.setText(datapackage.getOxy()+"");
-        txt_NH4 .setText(datapackage.getNH3()+"");
-        txt_H2S.setText(datapackage.getH2S()+"");
-        txt_NO2_Min .setText(datapackage.getNO2Min()+"");
-        txt_NO2_Max .setText(datapackage.getNO2Max()+"");
-        txt_NH4_Min.setText(datapackage.getNH4Min()+"");
-        txt_NH4_Max .setText(datapackage.getNH4Max()+"");
-        txt_H2S_Min.setText(datapackage.getSulfideMin()+"");
-        txt_H2S_Max.setText(datapackage.getSulfideMax()+"");
-
-        String alkal=String.valueOf(datapackage.getAlkalinity());
-        alkal=alkal.substring(0,6)+"...";
-        txt_Alkalinity.setText(alkal);
-
-    }
+//    public void updateView(Datapackage datapackage){
+//        txt_Tittle.setText("Ao " + selectedLake + " - Thiết bị " + selectedDevice);
+//        txt_Time_Update.setText("Cập nhật: " + XuLyThoiGian.StringToDatetimeString(datapackage.getTime_Package()));
+//        txt_Temp.setText(datapackage.getTemp()+"");
+//        txt_PH.setText(datapackage.getPH()+"");
+//        txt_Salt.setText(datapackage.getSalt()+"");
+//        txt_Oxy.setText(datapackage.getOxy()+"");
+//        txt_NH4 .setText(datapackage.getNH3()+"");
+//        txt_H2S.setText(datapackage.getH2S()+"");
+//        txt_NO2_Min .setText(datapackage.getNO2Min()+"");
+//        txt_NO2_Max .setText(datapackage.getNO2Max()+"");
+//        txt_NH4_Min.setText(datapackage.getNH4Min()+"");
+//        txt_NH4_Max .setText(datapackage.getNH4Max()+"");
+//        txt_H2S_Min.setText(datapackage.getSulfideMin()+"");
+//        txt_H2S_Max.setText(datapackage.getSulfideMax()+"");
+//
+//        String alkal=String.valueOf(datapackage.getAlkalinity());
+//        alkal=alkal.substring(0,6)+"...";
+//        txt_Alkalinity.setText(alkal);
+//
+//    }
 
     @Override
     public void onDestroyView() {
@@ -494,8 +495,8 @@ public class ThongSoRealTimeFragment extends Fragment {
                             double Alkalinity = jsonObj.getDouble("Alkalinity");
                             String NgayTao = jsonObj.getString("Datetime_Packet");
 
-                            Datapackage datapackage = new Datapackage(-1, -1, Time_Package, PH, Salt, Temp, Oxy, H2S, NH3, NH4Max, NH4Min, NO2Min, SulfideMin, NO2Max, SulfideMax,Alkalinity, NgayTao);
-                            updateView(datapackage);
+                            Datapackage datapackage = new Datapackage();
+//                            updateView(datapackage);
 
                             //get settings of data
                             getPreferences();

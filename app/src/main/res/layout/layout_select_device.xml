@@ -17,7 +17,7 @@
         android:weightSum="2">
 
         <TextView
-            android:text="Chọn Ao"
+            android:text="Chọn Node"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
@@ -27,39 +27,41 @@
             android:id="@+id/spinner_lake"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1.5"></Spinner>
+            android:layout_weight="1.5"
+            android:textAlignment="center"></Spinner>
 
     </LinearLayout>
+
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="@dimen/activity_horizontal_margin"-->
+<!--        android:layout_marginLeft="@dimen/dimen_8dp"-->
+<!--        android:layout_marginRight="@dimen/dimen_8dp"-->
+<!--        android:orientation="horizontal"-->
+<!--        android:weightSum="2">-->
+
+<!--        <TextView-->
+<!--            android:text="Tên Thiết Bị"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_weight="0.5"-->
+<!--            android:textColor="@android:color/black"/>-->
+
+<!--        <Spinner-->
+<!--            android:id="@+id/spinner_device"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_weight="1.5"></Spinner>-->
+
+<!--    </LinearLayout>-->
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/activity_horizontal_margin"
         android:layout_marginLeft="@dimen/dimen_8dp"
         android:layout_marginRight="@dimen/dimen_8dp"
-        android:orientation="horizontal"
-        android:weightSum="2">
-
-        <TextView
-            android:text="Tên Thiết Bị"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.5"
-            android:textColor="@android:color/black"/>
-
-        <Spinner
-            android:id="@+id/spinner_device"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1.5"></Spinner>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/dimen_8dp"
-        android:layout_marginRight="@dimen/dimen_8dp"
+        android:layout_marginBottom="2dp"
         android:orientation="horizontal"
         android:weightSum="2">
 

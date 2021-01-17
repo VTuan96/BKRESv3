@@ -3,24 +3,17 @@ package com.pdp.bkresv2.fragment;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,13 +29,16 @@ import com.github.mikephil.charting.data.Entry;
 import com.pdp.bkresv2.R;
 import com.pdp.bkresv2.activity.HomeActivity;
 import com.pdp.bkresv2.activity.SettingsActivity;
-import com.pdp.bkresv2.adapter.CustomPagerPagerGiamSat;
 import com.pdp.bkresv2.adapter.GraphAdapter;
-import com.pdp.bkresv2.model.Customer;
 import com.pdp.bkresv2.model.Datapackage;
 import com.pdp.bkresv2.model.Device;
 import com.pdp.bkresv2.model.Graph;
 import com.pdp.bkresv2.model.Lake;
+import com.pdp.bkresv2.model.Node;
+import com.pdp.bkresv2.model.Project;
+import com.pdp.bkresv2.model.User;
+import com.pdp.bkresv2.service.NodeService;
+import com.pdp.bkresv2.service.ProjectService;
 import com.pdp.bkresv2.task.DownloadJSON;
 import com.pdp.bkresv2.utils.Constant;
 import com.pdp.bkresv2.utils.XuLyThoiGian;
@@ -63,7 +59,7 @@ import io.socket.emitter.Emitter;
  */
 public class BieuDoRealTimeFragment extends Fragment {
 
-    Customer customer;
+    User customer;
     DownloadJSON downloadJSON;
     ProgressDialog pDialog;
 
@@ -94,8 +90,8 @@ public class BieuDoRealTimeFragment extends Fragment {
     private ArrayList<Entry> entriesSalt=new ArrayList<>();
     private ArrayList labelsSalt = new ArrayList<String>();
 
-    private ArrayList<Entry> entriesOxy=new ArrayList<>();
-    private ArrayList labelsOxy = new ArrayList<String>();
+    private ArrayList<Entry> entriesDO =new ArrayList<>();
+    private ArrayList labelsDO = new ArrayList<String>();
 
     private ArrayList<Entry> entriesTemp=new ArrayList<>();
     private ArrayList labelsTemp = new ArrayList<String>();
@@ -104,8 +100,8 @@ public class BieuDoRealTimeFragment extends Fragment {
     private ArrayList<Entry> entriesH2S=new ArrayList<>();
     private ArrayList labelsH2S = new ArrayList<String>();
 
-    private ArrayList<Entry> entriesNH3=new ArrayList<>();
-    private ArrayList labelsNH3 = new ArrayList<String>();
+    private ArrayList<Entry> entriesNH4 =new ArrayList<>();
+    private ArrayList labelsNH4 = new ArrayList<String>();
 
     private ArrayList<Entry> entriesNH4Min=new ArrayList<>();
     private ArrayList labelsNH4Min = new ArrayList<String>();
@@ -116,8 +112,8 @@ public class BieuDoRealTimeFragment extends Fragment {
     private ArrayList<Entry> entriesNO2Min=new ArrayList<>();
     private ArrayList labelsNO2Min = new ArrayList<String>();
 
-    private ArrayList<Entry> entriesNO2Max=new ArrayList<>();
-    private ArrayList labelsNO2Max = new ArrayList<String>();
+    private ArrayList<Entry> entriesTUR =new ArrayList<>();
+    private ArrayList labelsTUR = new ArrayList<String>();
 
     private ArrayList<Entry> entriesH2SMax=new ArrayList<>();
     private ArrayList labelsH2SMax = new ArrayList<String>();
@@ -136,13 +132,19 @@ public class BieuDoRealTimeFragment extends Fragment {
         try {
             IO.Options opts = new IO.Options();
             opts.path = "/socket.io 2.03 version new";
-            mSocket = IO.socket("http://202.191.56.103:5505/");
+            mSocket = IO.socket("http://202.191.56.104:5522/");
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
 
     }
 
+
+    //New verson with new database design
+    public static Project project = new Project();
+    public static ArrayList<Node> listNodes = new ArrayList<>();
+
+    private boolean isFirstTimeLoadingData = true;
 
     public BieuDoRealTimeFragment() {
         // Required empty public constructor
@@ -153,8 +155,12 @@ public class BieuDoRealTimeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v=inflater.inflate(R.layout.fragment_bieu_do_real_time,container,false);
+        customer = HomeActivity.customer;
+//        getLakeAndDevice();
+        getProjectInformation();
+        getNodesInformation();
 
+        View v=inflater.inflate(R.layout.fragment_bieu_do_real_time,container,false);
 
         initWidget(v);
         pDialog = new ProgressDialog(getContext());
@@ -163,36 +169,48 @@ public class BieuDoRealTimeFragment extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                selectDeviceDialog("Chọn thiết bị");
+                selectDeviceDialog("Xin lựa chọn Node xem dữ liệu");
             }
         });
 
 
-        customer=HomeActivity.customer;
-
-
-        getLakeAndDevice();
-
         // Socket IO
-        //mSocket.emit("authentication", "354725065508131");
-
-        mSocket.emit("authentication", selectedImeiDevice);
-        mSocket.emit("join", selectedImeiDevice);
-        mSocket.on("new message", onDataReceive);
+        mSocket.connect();
+        mSocket.on("monitor_data_from_node", onDataReceive);
         mSocket.on(Socket.EVENT_CONNECT, onConnect);
         mSocket.on(Socket.EVENT_DISCONNECT,onDisconnect);
         mSocket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
         mSocket.on(Socket.EVENT_CONNECT_TIMEOUT, onConnectError);
-        mSocket.connect();
 
 
         return v;
     }
 
+    private void getProjectInformation() {
+        ProjectService service = new ProjectService(getContext());
+        service.getProjectInfo(Constant.PROJECT_NAME, new ProjectService.ProjectServiceCallBack() {
+            @Override
+            public void onProjectInfoReceived(Project projectSuccess) {
+                if (projectSuccess != null)
+                    project = projectSuccess;
+
+                Log.e("BieuDoRealTime", "FUNCTION: getProjectInformation, Project: " + project.toString());
+            }
+
+            @Override
+            public void onProjectInfoFailed(Project projectFailed) {
+                if (projectFailed != null)
+                    project = projectFailed;
+
+                Log.e("BieuDoRealTime", "FUNCTION: getProjectInformation, Project: " + project.toString());
+            }
+        });
+
+    }
+
     public void initWidget(View v){
         txt_Time_Update = (TextView) v.findViewById(R.id.txt_time_update);
         txt_Tittle = (TextView) v.findViewById(R.id.txt_title);
-
 
         //create graph
         listGraph=new ArrayList<>();
@@ -202,13 +220,13 @@ public class BieuDoRealTimeFragment extends Fragment {
         rvBieuDoThongKe.setLayoutManager(manager);
         Graph gPH=new Graph(arrLabels[0],entriesPH,labelsPH);
         Graph gSalt=new Graph(arrLabels[1],entriesSalt,labelsSalt);
-        Graph gOxy=new Graph(arrLabels[2],entriesOxy,labelsOxy);
+        Graph gOxy=new Graph(arrLabels[2], entriesDO, labelsDO);
         Graph gTemp=new Graph(arrLabels[3],entriesTemp,labelsTemp);
         Graph gH2S=new Graph(arrLabels[4],entriesH2S,labelsH2S);
-        Graph gNH3=new Graph(arrLabels[5],entriesNH3,labelsNH3);
+        Graph gNH3=new Graph(arrLabels[5], entriesNH4, labelsNH4);
         Graph gNH4Max=new Graph(arrLabels[6],entriesNH4Max,labelsNH4Max);
         Graph gNH4Min=new Graph(arrLabels[7],entriesNH4Min,labelsNH4Min);
-        Graph gNO2Max=new Graph(arrLabels[8],entriesNO2Min,labelsNO2Max);
+        Graph gNO2Max=new Graph(arrLabels[8],entriesNO2Min, labelsTUR);
         Graph gNO2Min=new Graph(arrLabels[9],entriesNO2Min,labelsNO2Min);
         Graph gH2SMax=new Graph(arrLabels[10],entriesH2SMax,labelsH2SMax);
         Graph gH2SMin=new Graph(arrLabels[11],entriesH2SMin,labelsH2SMin);
@@ -226,60 +244,54 @@ public class BieuDoRealTimeFragment extends Fragment {
         tempSelectedDevice = "";
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         View view= LayoutInflater.from(getContext()).inflate(R.layout.layout_select_device,null);
-//        builder.setView(R.layout.layout_select_device);
         builder.setView(view);
         builder.setTitle(title);
         final AlertDialog alertDialog = builder.create();
         alertDialog.getWindow().setLayout(800, 600); //Controlling width and height.
         alertDialog.show();
 
-        final Spinner spinner_Lake = (Spinner)alertDialog.findViewById(R.id.spinner_lake);
-        final Spinner spinner_Device = (Spinner)alertDialog.findViewById(R.id.spinner_device);
+        final Spinner spinner_Node = (Spinner)alertDialog.findViewById(R.id.spinner_lake);
 
-        if(listLake.size() == 0){
+        if(listNodes.size() == 0){
             Toast.makeText(getContext(), "Tài khoản này không quản lý thiết bị nào!", Toast.LENGTH_SHORT).show();
             alertDialog.dismiss();
         }
 
-        String arr_lake[] = new String[listLake.size()];
-        String arr_device[] = new String[listDevice.size()];
+        String arr_lake[] = new String[listNodes.size()];
 
-        for(int i=0; i<listLake.size(); i++)
-            arr_lake[i] = listLake.get(i).getName();
-        for(int j=0; j<listDevice.size(); j++)
-            arr_device[j] = listDevice.get(j).getName();
+        for(int i=0; i<listNodes.size(); i++)
+            arr_lake[i] = listNodes.get(i).getName();
 
         ArrayAdapter<String> adapter=new ArrayAdapter<String>
                 (getContext(), android.R.layout.simple_spinner_item,arr_lake);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner_Lake.setAdapter(adapter);
-        //spinner_Lake.setOnItemSelectedListener(new MyOnItemSelectedListener());
+        spinner_Node.setAdapter(adapter);
 
-        spinner_Lake.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spinner_Node.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                int LakeId = listLake.get(i).getLakeId();
-                selectedLake = spinner_Lake.getSelectedItem().toString();
-                int count = 0;
-                for(int k=0 ; k<listDevice.size(); k++){
-                    if(listDevice.get(k).getLakeId() == LakeId){
-                        count++;
-                    }
-                }
-
-                String arr[] = new String [count];
-                count = -1;
-                for(int k=0 ; k<listDevice.size(); k++){
-                    if(listDevice.get(k).getLakeId() == LakeId){
-                        count++;
-                        arr[count] = listDevice.get(k).getName();
-                    }
-                }
-
-                ArrayAdapter<String> adapter2 =new ArrayAdapter<String>
-                        (getContext(), android.R.layout.simple_spinner_item, arr);
-                adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spinner_Device.setAdapter(adapter2);
+//                int LakeId = listLake.get(i).getLakeId();
+//                selectedLake = spinner_Lake.getSelectedItem().toString();
+//                int count = 0;
+//                for(int k=0 ; k<listDevice.size(); k++){
+//                    if(listDevice.get(k).getLakeId() == LakeId){
+//                        count++;
+//                    }
+//                }
+//
+//                String arr[] = new String [count];
+//                count = -1;
+//                for(int k=0 ; k<listDevice.size(); k++){
+//                    if(listDevice.get(k).getLakeId() == LakeId){
+//                        count++;
+//                        arr[count] = listDevice.get(k).getName();
+//                    }
+//                }
+//
+//                ArrayAdapter<String> adapter2 =new ArrayAdapter<String>
+//                        (getContext(), android.R.layout.simple_spinner_item, arr);
+//                adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//                spinner_Device.setAdapter(adapter2);
             }
 
             @Override
@@ -288,18 +300,6 @@ public class BieuDoRealTimeFragment extends Fragment {
             }
         });
 
-        spinner_Device.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                tempSelectedDevice = spinner_Device.getSelectedItem().toString();
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
 
         Button btn_Ok = (Button) alertDialog.findViewById(R.id.btn_Ok);
         btn_Ok.setOnClickListener(new View.OnClickListener() {
@@ -331,77 +331,48 @@ public class BieuDoRealTimeFragment extends Fragment {
         });
     }
 
-    public void getLakeAndDevice(){
-        Uri builder = Uri.parse(Constant.URL + Constant.API_GET_LAKE_AND_DEVICE)
-                .buildUpon()
-                .appendQueryParameter("HomeId", customer.getHomeId() + "").build();
-        downloadJSON = new DownloadJSON(getContext());
-
-        System.out.println(builder.toString());
-
-        downloadJSON.GetJSON(builder, new DownloadJSON.DownloadJSONCallBack() {
+    private void getNodesInformation() {
+        NodeService service = new NodeService(getContext());
+        service.getNodeInfo(new NodeService.NodeServiceCallBack() {
             @Override
-            public void onSuccess(String msgData) {
-                Log.i("Data", msgData);
-                if(msgData.length()>1){
-                    try {
-                        JSONArray jsonArray = new JSONArray(msgData);
-                        for(int i=0 ; i<jsonArray.length(); i++){
-                            JSONObject objTmp = jsonArray.getJSONObject(i);
-                            int LakeId = objTmp.getInt("LakeId");
-                            String Name = objTmp.getString("Name");
-                            int HomeId = objTmp.getInt("HomeId");
-                            String MapUrl = objTmp.getString("MapUrl");
-                            String CreateTime = objTmp.getString("CreateTime");
-                            Lake lakeObj = new Lake(LakeId, Name, HomeId,MapUrl, CreateTime);
-                            listLake.add(lakeObj);
+            public void onNodeInfoReceived(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    JSONArray data = jsonObject.getJSONArray("data");
+                    int length = data.length();
 
-                            JSONArray jsonDeviceArray = objTmp.getJSONArray("listDevice");
-                            for(int j=0; j<jsonDeviceArray.length(); j++){
-                                JSONObject jsonDeviceObj = jsonDeviceArray.getJSONObject(j);
-                                int IdDevice = jsonDeviceObj.getInt("Id");
-                                String NameDevice = jsonDeviceObj.getString("Name");
-                                String ImeiDevice = jsonDeviceObj.getString("Imei");
-                                String CreateTimeDevice = jsonDeviceObj.getString("CreateTime");
-                                String WarningNumberPhone = jsonDeviceObj.getString("WarningNumberPhone");
-                                String WarningMail = jsonDeviceObj.getString("WarningMail");
-                                int LakeIdDevice = jsonDeviceObj.getInt("LakeId");
-                                Device deviceObj = new Device(IdDevice, NameDevice, ImeiDevice, CreateTimeDevice, WarningNumberPhone, WarningMail, LakeIdDevice);
-                                listDevice.add(deviceObj);
-                            }
+                    for (int i = 0; i < length; i++){
+                        JSONObject nodeItem = data.getJSONObject(i);
+                        Node node = new Node();
+                        node.set_id(nodeItem.getString("id"));
+                        node.setName(nodeItem.getString("name"));
+                        String description = "";
+                        try {
+                            description = nodeItem.getString("description");
                         }
+                        catch (JSONException e)
+                        {
+                            description = "";
+                        }
+                        node.setDescription(description);
+                        node.setId_server_gen(nodeItem.getString("id_server_gen"));
+//                        node.setId_gateway_server_gen(nodeItem.getString("id_gateway_server_gen"));
+//                        node.setId_gateway(nodeItem.getString("id_gateway"));
+                        node.setId_project(nodeItem.getString("id_project"));
+//                        node.setId_communication(nodeItem.getString("id_communication"));
 
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        if (node.getId_project().equals(project.get_id()) == true)
+                            listNodes.add(node);
                     }
 
-                    Log.i("Number of Lake", "Lake: " + listLake.size() + " - Device:" + listDevice.size());
-
-                    if(listDevice.size()>0 && listLake.size()>0){
-                        selectedLake = listLake.get(0).getName();
-                        selectedDevice = listDevice.get(0).getName();
-                        selectedImeiDevice = listDevice.get(0).getImei();
-                        mSocket.emit("authentication", selectedImeiDevice);
-                        mSocket.emit("join", selectedImeiDevice);
-                        mSocket.on("new message", onDataReceive);
-                        Log.i("IMEI DEVICE SELECT", selectedImeiDevice);
-                        getDatapackageByDeviceName();
-
-                        adapter.notifyDataSetChanged();
-
-                    } else {
-                        Toast.makeText(getContext(), "Tài khoản này không quản lý thiết bị nào!", Toast.LENGTH_SHORT).show();
-                    }
-
-
-                } else{
-                    Toast.makeText(getContext(), "Tài khoản " + customer.getUsername() + " không có thiết bị giám sát", Toast.LENGTH_SHORT).show();
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
 
             @Override
-            public void onFail(String msgError) {
-                Log.i("Error", msgError);
+            public void onNodeInfoFailed(String failed) {
+
             }
         });
     }
@@ -409,9 +380,6 @@ public class BieuDoRealTimeFragment extends Fragment {
     public void getDatapackageByDeviceName(){
         pDialog.setMessage("Đang tải...");
         pDialog.show();
-
-
-
         int deviceId = -1;
         for(int i=0; i<listDevice.size(); i++){
             if(listDevice.get(i).getName().compareTo(selectedDevice) == 0){
@@ -419,7 +387,6 @@ public class BieuDoRealTimeFragment extends Fragment {
                 break;
             }
         }
-
 
         Uri builder = Uri.parse(Constant.URL + Constant.API_GET_DATA_PACKAGE)
                 .buildUpon()
@@ -451,7 +418,7 @@ public class BieuDoRealTimeFragment extends Fragment {
                     double Alkalinity = jsonObj.getDouble("Alkalinity");
                     String NgayTao = jsonObj.getString("NgayTao");
 
-                    Datapackage datapackage = new Datapackage(Id, DeviceId, Time_Package, PH, Salt, Temp, Oxy, H2S, NH3, NH4Max, NH4Min, NO2Min, SulfideMin, NO2Max, SulfideMax, Alkalinity, NgayTao);
+                    Datapackage datapackage = new Datapackage();
                     updateView(datapackage);
 
                 } catch (JSONException e) {
@@ -470,7 +437,7 @@ public class BieuDoRealTimeFragment extends Fragment {
 
     public void updateView(Datapackage datapackage){
         txt_Tittle.setText("Ao " + selectedLake + " - Thiết bị " + selectedDevice);
-        txt_Time_Update.setText("Cập nhật: " + XuLyThoiGian.StringToDatetimeString(datapackage.getTime_Package()));
+        txt_Time_Update.setText("Cập nhật: " + datapackage.getTime_Package());
         adapter.notifyDataSetChanged();
     }
 
@@ -547,52 +514,63 @@ public class BieuDoRealTimeFragment extends Fragment {
                 @Override
                 public void run() {
                     String data = args[0].toString();
-                    Log.i("Socket IO data", data);
+//                    Log.i("Socket IO data", data);
 
                     try {
+                        Node node = new Node();
+                        if (listNodes.size() > 0) {
+                            node = listNodes.get(13);
+                        }
+
                         JSONObject jsonObj = new JSONObject(data);
+                        String node_id_server_gen = jsonObj.getString("id_node_server_gen");
+                        if(node.getId_server_gen().equals(node_id_server_gen) == true){ //NodeId_Server_gen decide to which node is receive data through SocketIO
+                            String dataJSON = jsonObj.getString("data");
 
-                        Log.i("IMEI DEVICE SELECT", selectedImeiDevice);
-                        String deviceImei = jsonObj.getString("Device_IMEI");
-                        Log.i("IMEI DEVICE SERVER", deviceImei);
+                            int firstIndexOfBracket = dataJSON.indexOf("{");
+                            String timePackage = dataJSON.substring(0, firstIndexOfBracket - 1);
+                            dataJSON = dataJSON.substring(firstIndexOfBracket);
 
-                        if(deviceImei.compareTo(selectedImeiDevice) == 0){
-                            String Time_Package = jsonObj.getString("Datetime_Packet");
-                            double PH = jsonObj.getDouble("PH");
-                            double Salt = jsonObj.getDouble("Salt");
-                            double Oxy = jsonObj.getDouble("Oxy");
-                            double Temp = jsonObj.getDouble("NhietDo");
-                            double H2S = jsonObj.getDouble("H2S");
-                            double NH3 = jsonObj.getDouble("NH3");
-                            double NH4Min = jsonObj.getDouble("NH4Min");
-                            double NH4Max = jsonObj.getDouble("NH4Max");
-                            double NO2Min = jsonObj.getDouble("NO2Min");
-                            double NO2Max = jsonObj.getDouble("NO2Max");
-                            double SulfideMin = jsonObj.getDouble("SulfideMin");
-                            double SulfideMax = jsonObj.getDouble("SulfideMax");
-                            double Alkalinity= jsonObj.getDouble("Alkalinity");
-                            String NgayTao = jsonObj.getString("Datetime_Packet");
+                            JSONObject dataObj = new JSONObject(dataJSON);
+                            String latitude = dataObj.getString("LAT");
+                            String longitude = dataObj.getString("LONG");
+                            String name = dataObj.getString("ID");
+                            double temperature = Double.parseDouble(dataObj.getString("T"));
+                            double pH = Double.parseDouble(dataObj.getString("pH"));
+                            double dO = Double.parseDouble(dataObj.getString("DO"));
+                            double salt = Double.parseDouble(dataObj.getString("Salt"));
+                            double h2s = Double.parseDouble(dataObj.getString("H2S"));
+                            double nh4 = Double.parseDouble(dataObj.getString("NH4"));
+                            double tur = Double.parseDouble(dataObj.getString("TUR"));
 
-                            double [] arrValue=new double[]{PH,Salt,Oxy,Temp,H2S,NH3,NH4Max,NH4Min,NO2Max,NO2Min,SulfideMax,SulfideMin};
 
-                            time=XuLyThoiGian.StringToDatetimeString(Time_Package);
-                            String [] arrTime=time.split(" ");
-                            time=arrTime[1]; //gia tri thoi gian cua du lieu
-//                            Toast.makeText(getApplicationContext(),arrTime[1],Toast.LENGTH_LONG).show();
+                            Log.d("BieuDoRealTimeFragment", "FUNCTION: onDataReceive, data: " + dataJSON);
+
+
+//                            String Time_Package = jsonObj.getString("Datetime_Packet");
+//                            double PH = jsonObj.getDouble("PH");
+//                            double Salt = jsonObj.getDouble("Salt");
+//                            double Oxy = jsonObj.getDouble("Oxy");
+//                            double Temp = jsonObj.getDouble("NhietDo");
+//                            double H2S = jsonObj.getDouble("H2S");
+//                            double NH3 = jsonObj.getDouble("NH3");
+//                            double NH4Min = jsonObj.getDouble("NH4Min");
+//                            double NH4Max = jsonObj.getDouble("NH4Max");
+//                            double NO2Min = jsonObj.getDouble("NO2Min");
+//                            double NO2Max = jsonObj.getDouble("NO2Max");
+//                            double SulfideMin = jsonObj.getDouble("SulfideMin");
+//                            double SulfideMax = jsonObj.getDouble("SulfideMax");
+//                            double Alkalinity= jsonObj.getDouble("Alkalinity");
+//                            String NgayTao = jsonObj.getString("Datetime_Packet");
 
                             //them gia tri thong so, va thoi gian vao bang bieu do
-                            addEntryAndLabel(entriesPH,labelsPH,PH,count,time);
-                            addEntryAndLabel(entriesSalt,labelsSalt,Salt,count,time);
-                            addEntryAndLabel(entriesH2S,labelsH2S,H2S,count,time);
-                            addEntryAndLabel(entriesH2SMax,labelsH2SMax,SulfideMax,count,time);
-                            addEntryAndLabel(entriesH2SMin,labelsH2SMin,SulfideMin,count,time);
-                            addEntryAndLabel(entriesNH3,labelsNH3,NH3,count,time);
-                            addEntryAndLabel(entriesNH4Max,labelsNH4Max,NH4Max,count,time);
-                            addEntryAndLabel(entriesNH4Min,labelsNH4Min,NH4Min,count,time);
-                            addEntryAndLabel(entriesNO2Max,labelsNO2Max,NO2Max,count,time);
-                            addEntryAndLabel(entriesNO2Min,labelsNO2Min,NO2Min,count,time);
-                            addEntryAndLabel(entriesOxy,labelsOxy,Oxy,count,time);
-                            addEntryAndLabel(entriesTemp,labelsTemp,Temp,count,time);
+                            addEntryAndLabel(entriesPH,labelsPH,pH,count,time);
+                            addEntryAndLabel(entriesSalt,labelsSalt,salt,count,time);
+                            addEntryAndLabel(entriesH2S,labelsH2S,h2s,count,time);
+                            addEntryAndLabel(entriesNH4, labelsNH4,nh4,count,time);
+                            addEntryAndLabel(entriesTUR, labelsTUR,tur,count,time);
+                            addEntryAndLabel(entriesDO, labelsDO,dO,count,time);
+                            addEntryAndLabel(entriesTemp,labelsTemp,temperature,count,time);
 
 
 //                            System.out.println("size graph:"+listGraph.size());
@@ -602,17 +580,26 @@ public class BieuDoRealTimeFragment extends Fragment {
                             adapter.notifyDataSetChanged();
                             rvBieuDoThongKe.setAdapter(adapter);
 
-                            Datapackage datapackage = new Datapackage(-1, -1, Time_Package, PH, Salt, Temp, Oxy, H2S, NH3, NH4Max, NH4Min, NO2Min, SulfideMin, NO2Max, SulfideMax,Alkalinity, NgayTao);
+                            Datapackage datapackage = new Datapackage();
+                            datapackage.setDO(dO);
+                            datapackage.setH2S(h2s);
+                            datapackage.setNH4(nh4);
+                            datapackage.setPH(pH);
+                            datapackage.setSalt(salt);
+                            datapackage.setTemp(temperature);
+                            datapackage.setTUR(tur);
+                            datapackage.setTime_Package(timePackage);
+
                             updateView(datapackage);
                             count++;
 
                             //get settings of data
                             getPreferences();
                             //check current data and data on settings
-                            checkParameter(PH,PH_Min,PH_Max);
-                            checkParameter(Temp,Temp_Min,Temp_Max);
-                            checkParameter(Oxy,Oxy_Min,Oxy_Max);
-                            checkParameter(Salt,Salt_Min,Salt_Max);
+                            checkParameter(pH,PH_Min,PH_Max);
+                            checkParameter(temperature,Temp_Min,Temp_Max);
+                            checkParameter(dO,Oxy_Min,Oxy_Max);
+                            checkParameter(salt,Salt_Min,Salt_Max);
 
                         }
 

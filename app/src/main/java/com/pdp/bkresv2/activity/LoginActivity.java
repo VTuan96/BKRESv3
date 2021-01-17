@@ -21,19 +21,26 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.pdp.bkresv2.R;
 import com.pdp.bkresv2.model.Customer;
+import com.pdp.bkresv2.model.User;
 import com.pdp.bkresv2.utils.CheckInternet;
 import com.pdp.bkresv2.utils.Constant;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -46,6 +53,10 @@ public class LoginActivity extends AppCompatActivity {
 
     //Dat ten cho tap tin luu trang thai
     String prefname = "login_data";
+
+    //Store token as static variable
+    public static String AUTHEN_TOKEN = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,61 +148,56 @@ public class LoginActivity extends AppCompatActivity {
 
 
                     Uri builder = Uri.parse(Constant.URL + Constant.API_CUSTOMER_LOGIN)
-                            .buildUpon()
-                            .appendQueryParameter("Username", tmpID)
-                            .appendQueryParameter("Pass", tmpPass).build();
+                            .buildUpon().build();
                     String url = builder.toString();
 
                     Log.i(Constant.TAG_LOGIN, url);
-                    requestWithSomeHttpHeaders(url);
+                    try {
+                        requestWithSomeHttpHeaders(url, tmpID, tmpPass);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
     }
 
-    public void requestWithSomeHttpHeaders(String url) {
+    public void requestWithSomeHttpHeaders(String url, String username, String password) throws JSONException {
+        JSONObject jsonBody = new JSONObject();
+        jsonBody.put("username", username);
+        jsonBody.put("password", password);
+        final String requestBody = jsonBody.toString();
+
         RequestQueue queue = Volley.newRequestQueue(LoginActivity.this);
         pDialog.setMessage("Đang tải...");
         pDialog.show();
-        StringRequest postRequest = new StringRequest(Request.Method.GET, url,
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
 
                         // Display the first 500 characters of the response string.
-                        Log.e(Constant.TAG_LOGIN, "Get JSON respone: " + response.toString());
+                        Log.e(Constant.TAG_LOGIN, "Get JSON respone: " + response);
                         pDialog.dismiss();
 
                         try {
-                            boolean success = false;
-                            JSONObject jsonObj = new JSONObject(response);
-                            success = jsonObj.getBoolean("success");
-                            if(success){
+                            JSONObject jsonRespone = new JSONObject(response);
+                            int status = jsonRespone.getInt("status");
+                            String token = jsonRespone.getString("token");
+                            String permission = jsonRespone.getString("permissions");
 
-                                JSONObject customerObj = jsonObj.getJSONObject("data");
-                                int Id = customerObj.getInt("Id");
-                                String CustomerGuid = customerObj.getString("CustomerGuid");
-                                String Username = customerObj.getString("Username");
-                                String Email = customerObj.getString("Email");
-                                int PasswordFormatId = customerObj.getInt("PasswordFormatId");
-                                String PasswordSalt = customerObj.getString("PasswordSalt");
-                                String Password = customerObj.getString("Password");
-                                int HomeId = customerObj.getInt("HomeId");
-                                int TinhId = customerObj.getInt("TinhId");
+                            AUTHEN_TOKEN = token;
 
-                                Customer customer = new Customer(Id, CustomerGuid, Username, Email, PasswordFormatId, PasswordSalt, Password, HomeId, TinhId);
+                            if (status == 200) // Server response return code OK
+                            {
+                                //Request to get user information
+                                Uri builder = Uri.parse(Constant.URL + Constant.API_USER_INFO)
+                                        .buildUpon().build();
+                                String urlUserInfo = builder.toString();
 
-                                Toast.makeText(LoginActivity.this, Username + " đăng nhập thành công", Toast.LENGTH_SHORT).show();
-
-                                //Chuyen Activity
-                                Intent t = new Intent(LoginActivity.this, HomeActivity.class);
-                                t.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                t.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                t.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                                t.putExtra("customerObject", customer);
-
-                                startActivity(t);
-                            } else
+                                getUserInformation(urlUserInfo, token);
+                            }
+                            else
                             {
                                 AlertDialog.Builder builder1 = new AlertDialog.Builder(LoginActivity.this);
                                 builder1.setMessage("Tài khoản hoặc mật khẩu không đúng");
@@ -236,7 +242,108 @@ public class LoginActivity extends AppCompatActivity {
                         alert11.show();
                     }
                 }
-        );
+        ) {
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                try {
+                    Log.e(Constant.TAG_LOGIN, "FUNCTION: getBody, requestBody: " + requestBody);
+                    return requestBody == null ? null : requestBody.getBytes("utf-8");
+                } catch (UnsupportedEncodingException uee) {
+                    VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s", requestBody, "utf-8");
+                    return null;
+                }
+            }
+
+            @Override
+            public String getBodyContentType() {
+                return "application/json; charset=utf-8";
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("accept","application/json");
+                params.put("Content-Type","application/json");
+                return params;
+            }
+        };
+        queue.add(postRequest);
+    }
+
+
+    private void getUserInformation(String url, final String token){
+        RequestQueue queue = Volley.newRequestQueue(LoginActivity.this);
+        StringRequest postRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        // Display the first 500 characters of the response string.
+                        Log.e(Constant.TAG_LOGIN, "Get JSON respone: " + response);
+
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            JSONObject customerObj = jsonObject.getJSONObject("data");
+                            String Id = customerObj.getString("id");
+                            String Username = customerObj.getString("username");
+                            String Email = customerObj.getString("email");
+                            String Name = customerObj.getString("name");
+                            String Phone = customerObj.getString("phone");
+
+                            User user = new User();
+                            user.set_id(Id);
+                            user.setName(Name);
+                            user.setPhone(Phone);
+                            user.setEmail(Email);
+                            user.setUsername(Username);
+
+                            Toast.makeText(LoginActivity.this, Username + " đăng nhập thành công", Toast.LENGTH_SHORT).show();
+
+                            //Chuyen Activity
+                            Intent t = new Intent(LoginActivity.this, HomeActivity.class);
+                            t.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            t.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            t.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                            t.putExtra("customerObject", user);
+
+                            startActivity(t);
+                        }
+                        catch (JSONException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("ERROR", "error => " + error.toString());
+                        pDialog.hide();
+
+                        AlertDialog.Builder builder1 = new AlertDialog.Builder(LoginActivity.this);
+                        builder1.setTitle("Lỗi kết nối");
+                        builder1.setMessage("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!");
+                        builder1.setPositiveButton(
+                                "OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+
+                        AlertDialog alert11 = builder1.create();
+                        alert11.show();
+                    }
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("accept","application/json");
+                params.put("Authorization","Token " + token);
+                return params;
+            }
+        };
         queue.add(postRequest);
     }
 
