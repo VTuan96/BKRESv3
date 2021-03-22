@@ -142,7 +142,7 @@
                         android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/txt_Oxi"
+                            android:id="@+id/txt_DO"
                             style="@style/humiStyle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -154,7 +154,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:text="Oxi"
+                            android:text="DO"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -220,7 +220,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:text="NH3/NH4+"
+                            android:text="NH3"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -252,12 +252,12 @@
 
             </android.support.v7.widget.CardView>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dimen_8dp"
-                android:text="Ngưỡng NO2"
-                android:textColor="@android:color/black"/>
+<!--            <TextView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="@dimen/dimen_8dp"-->
+<!--                android:text="Ngưỡng NO2"-->
+<!--                android:textColor="@android:color/black"/>-->
 
             <android.support.v7.widget.CardView
                 android:layout_marginTop="@dimen/dimen_4dp"
@@ -281,7 +281,7 @@
                         android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/txt_NO2_Min"
+                            android:id="@+id/txt_TSS"
                             style="@style/humiStyle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -293,7 +293,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:text="NO2 Min"
+                            android:text="TSS"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -306,7 +306,7 @@
                         android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/txt_NO2_Max"
+                            android:id="@+id/txt_COD"
                             style="@style/humiStyle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -318,188 +318,185 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:text="NO2 Max"
+                            android:text="COD"
                             android:textStyle="bold" />
                     </LinearLayout>
                 </LinearLayout>
 
             </android.support.v7.widget.CardView>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dimen_8dp"
-                android:text="Ngưỡng NH4"
-                android:textColor="@android:color/black"/>
+<!--            <TextView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="@dimen/dimen_8dp"-->
+<!--                android:text="Ngưỡng NH4"-->
+<!--                android:textColor="@android:color/black"/>-->
 
-            <android.support.v7.widget.CardView
-                android:layout_marginTop="@dimen/dimen_4dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/bg_card_view">
+<!--            <android.support.v7.widget.CardView-->
+<!--                android:layout_marginTop="@dimen/dimen_4dp"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:cardBackgroundColor="@color/bg_card_view">-->
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:weightSum="2">
+<!--                <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:orientation="horizontal"-->
+<!--                    android:weightSum="2">-->
 
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                        android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                        android:layout_marginRight="@dimen/activity_horizontal_margin"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginBottom="@dimen/activity_horizontal_margin"-->
+<!--                        android:layout_marginLeft="@dimen/activity_horizontal_margin"-->
+<!--                        android:layout_marginRight="@dimen/activity_horizontal_margin"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:orientation="vertical">-->
 
-                        <TextView
-                            android:id="@+id/txt_NH4_Min"
-                            style="@style/humiStyle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="0" />
+<!--                        <TextView-->
+<!--                            android:id="@+id/txt_NH4_Min"-->
+<!--                            style="@style/humiStyle"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_gravity="center"-->
+<!--                            android:text="0" />-->
 
-                        <TextView
-                            style="@style/TextAppearance.AppCompat.Caption"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="NH4 Min"
-                            android:textStyle="bold" />
-                    </LinearLayout>
+<!--                        <TextView-->
+<!--                            style="@style/TextAppearance.AppCompat.Caption"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_gravity="center"-->
+<!--                            android:text="NH4 Min"-->
+<!--                            android:textStyle="bold" />-->
+<!--                    </LinearLayout>-->
 
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                        android:layout_marginRight="@dimen/activity_horizontal_margin"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginLeft="@dimen/activity_horizontal_margin"-->
+<!--                        android:layout_marginRight="@dimen/activity_horizontal_margin"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:orientation="vertical">-->
 
-                        <TextView
-                            android:id="@+id/txt_NH4_Max"
-                            style="@style/humiStyle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="0" />
+<!--                        <TextView-->
+<!--                            android:id="@+id/txt_NH4_Max"-->
+<!--                            style="@style/humiStyle"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_gravity="center"-->
+<!--                            android:text="0" />-->
 
-                        <TextView
-                            style="@style/TextAppearance.AppCompat.Caption"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="NH4 Max"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </LinearLayout>
+<!--                        <TextView-->
+<!--                            style="@style/TextAppearance.AppCompat.Caption"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_gravity="center"-->
+<!--                            android:text="NH4 Max"-->
+<!--                            android:textStyle="bold" />-->
+<!--                    </LinearLayout>-->
+<!--                </LinearLayout>-->
 
-            </android.support.v7.widget.CardView>
-
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dimen_8dp"
-                android:text="Ngưỡng Sulfide"
-                android:textColor="@android:color/black"/>
-
-            <android.support.v7.widget.CardView
-                android:layout_marginTop="@dimen/dimen_4dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/white">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:weightSum="2">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                        android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                        android:layout_marginRight="@dimen/activity_horizontal_margin"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/txt_Sulfide_Min"
-                            style="@style/humiStyle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="0" />
-
-                        <TextView
-                            style="@style/TextAppearance.AppCompat.Caption"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="Sulfide Min"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                        android:layout_marginRight="@dimen/activity_horizontal_margin"
-                        android:layout_marginBottom="@dimen/dimen_8dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/txt_Sulfide_Max"
-                            style="@style/humiStyle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="0" />
-
-                        <TextView
-                            style="@style/TextAppearance.AppCompat.Caption"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="Sulfide Max"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </LinearLayout>
-
-            </android.support.v7.widget.CardView>
-
-            <android.support.v7.widget.CardView
-                android:layout_marginTop="@dimen/dimen_8dp"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                app:cardBackgroundColor="@color/bg_card_view">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:textColor="@android:color/black"
-                        android:gravity="center_vertical"
-                        android:text="Alkalinity: "/>
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical"
-                        android:id="@+id/txt_Alkalinity"
-                        style="@style/humiStyle"/>
-                </LinearLayout>
+<!--            </android.support.v7.widget.CardView>-->
 
 
+<!--            <TextView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="@dimen/dimen_8dp"-->
+<!--                android:text="Ngưỡng Sulfide"-->
+<!--                android:textColor="@android:color/black"/>-->
 
-            </android.support.v7.widget.CardView>
+<!--            <android.support.v7.widget.CardView-->
+<!--                android:layout_marginTop="@dimen/dimen_4dp"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:cardBackgroundColor="@color/white">-->
+
+<!--                <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:orientation="horizontal"-->
+<!--                    android:weightSum="2">-->
+
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginBottom="@dimen/activity_horizontal_margin"-->
+<!--                        android:layout_marginLeft="@dimen/activity_horizontal_margin"-->
+<!--                        android:layout_marginRight="@dimen/activity_horizontal_margin"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:orientation="vertical">-->
+
+<!--                        <TextView-->
+<!--                            android:id="@+id/txt_Sulfide_Min"-->
+<!--                            style="@style/humiStyle"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_gravity="center"-->
+<!--                            android:text="0" />-->
+
+<!--                        <TextView-->
+<!--                            style="@style/TextAppearance.AppCompat.Caption"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_gravity="center"-->
+<!--                            android:text="Sulfide Min"-->
+<!--                            android:textStyle="bold" />-->
+<!--                    </LinearLayout>-->
+
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginLeft="@dimen/activity_horizontal_margin"-->
+<!--                        android:layout_marginRight="@dimen/activity_horizontal_margin"-->
+<!--                        android:layout_marginBottom="@dimen/dimen_8dp"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:orientation="vertical">-->
+
+<!--                        <TextView-->
+<!--                            android:id="@+id/txt_Sulfide_Max"-->
+<!--                            style="@style/humiStyle"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_gravity="center"-->
+<!--                            android:text="0" />-->
+
+<!--                        <TextView-->
+<!--                            style="@style/TextAppearance.AppCompat.Caption"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_gravity="center"-->
+<!--                            android:text="Sulfide Max"-->
+<!--                            android:textStyle="bold" />-->
+<!--                    </LinearLayout>-->
+<!--                </LinearLayout>-->
+
+<!--            </android.support.v7.widget.CardView>-->
+
+<!--            <android.support.v7.widget.CardView-->
+<!--                android:layout_marginTop="@dimen/dimen_8dp"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="40dp"-->
+<!--                app:cardBackgroundColor="@color/bg_card_view">-->
+
+<!--                <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:orientation="horizontal">-->
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="match_parent"-->
+<!--                        android:textColor="@android:color/black"-->
+<!--                        android:gravity="center_vertical"-->
+<!--                        android:text="Alkalinity: "/>-->
+<!--                    <TextView-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="match_parent"-->
+<!--                        android:gravity="center_vertical"-->
+<!--                        android:id="@+id/txt_Alkalinity"-->
+<!--                        style="@style/humiStyle"/>-->
+<!--                </LinearLayout>-->
+<!--            </android.support.v7.widget.CardView>-->
 
         </LinearLayout>
     </ScrollView>

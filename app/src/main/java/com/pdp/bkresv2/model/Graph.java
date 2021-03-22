@@ -64,6 +64,10 @@ public class Graph implements Parcelable{
         this.labels = labels;
     }
 
+    public void resetEntry() {
+        this.entries = new ArrayList<Entry>();
+    }
+
     public Graph() {
 
     }

@@ -12,32 +12,34 @@ public class Datapackage {
     double Salt;
     double Temp;
     double H2S;
-    double NH4;
+    double NH3;
     double DO;
-    double TUR;
+    double TSS;
+    double COD;
 
     public Datapackage() {
     }
 
-    public Datapackage(int id, int deviceId, String time_Package, double PH, double salt, double temp, double h2S, double NH4, double DO, double TUR) {
-        Id = id;
-        DeviceId = deviceId;
-        Time_Package = time_Package;
+    public Datapackage(int id, int deviceId, String time_Package, double PH, double salt, double temp, double h2S, double NH3, double DO, double TSS, double COD) {
+        this.Id = id;
+        this.DeviceId = deviceId;
+        this.Time_Package = time_Package;
         this.PH = PH;
-        Salt = salt;
-        Temp = temp;
-        H2S = h2S;
-        this.NH4 = NH4;
+        this.Salt = salt;
+        this.Temp = temp;
+        this.H2S = h2S;
+        this.NH3 = NH3;
         this.DO = DO;
-        this.TUR = TUR;
+        this.TSS = TSS;
+        this.COD = COD;
     }
 
-    public double getTUR() {
-        return TUR;
+    public double getTSS() {
+        return TSS;
     }
 
-    public void setTUR(double TUR) {
-        this.TUR = TUR;
+    public void setTSS(double TSS) {
+        this.TSS = TSS;
     }
 
     public int getId() {
@@ -96,12 +98,12 @@ public class Datapackage {
         H2S = h2S;
     }
 
-    public double getNH4() {
-        return NH4;
+    public double getNH3() {
+        return NH3;
     }
 
-    public void setNH4(double NH4) {
-        this.NH4 = NH4;
+    public void setNH3(double NH3) {
+        this.NH3 = NH3;
     }
 
     public double getDO() {
@@ -111,4 +113,8 @@ public class Datapackage {
     public void setDO(double DO) {
         this.DO = DO;
     }
+
+    public double getCOD() { return COD; }
+
+    public void setCOD(double COD) { this.COD = COD; }
 }

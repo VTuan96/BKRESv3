@@ -145,9 +145,9 @@ public class BieuDoActivity extends AppCompatActivity {
 
     private void initViewPager(){
         listFragments=new ArrayList<>();
-        listFragments=getListFragments();
-        adapterDevice=new CustomPagerAdapter(getSupportFragmentManager(),listFragments);
-        pagerDevice.setAdapter(adapterDevice);
+//        listFragments=getListFragments();
+//        adapterDevice=new CustomPagerAdapter(getSupportFragmentManager(),listFragments);
+//        pagerDevice.setAdapter(adapterDevice);
 
     }
 

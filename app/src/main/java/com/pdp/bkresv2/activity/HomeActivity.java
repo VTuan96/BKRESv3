@@ -42,8 +42,10 @@ import com.pdp.bkresv2.model.Datapackage;
 import com.pdp.bkresv2.model.Device;
 import com.pdp.bkresv2.model.Graph;
 import com.pdp.bkresv2.model.Lake;
+import com.pdp.bkresv2.model.Node;
 import com.pdp.bkresv2.model.Project;
 import com.pdp.bkresv2.model.User;
+import com.pdp.bkresv2.service.NodeService;
 import com.pdp.bkresv2.service.ProjectService;
 import com.pdp.bkresv2.task.DownloadJSON;
 import com.pdp.bkresv2.utils.Constant;
@@ -78,11 +80,19 @@ public class HomeActivity extends AppCompatActivity
     private CustomPagerPagerGiamSat adapterPager;
 
     public static Project projectInfo = null;
+    public static Node selectedNode;
+    public static int selectedIndex = 0;
+    public ArrayList<Node> listNodes = new ArrayList<>();
+    public Project project = new Project();
+    public static boolean isNodeChanged = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        getProjectInformation();
+        getNodesInformation();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -104,22 +114,174 @@ public class HomeActivity extends AppCompatActivity
         customer = (User) i.getSerializableExtra("customerObject");
 //        getLakeAndDevice();
 
-        getProjectInfo();
-
         String userName = customer.getUsername();
         String email = customer.getEmail();
         txt_Nav_UserName.setText(userName);
         txt_Nav_Email.setText(email);
 
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabThongSo);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectDeviceDialog("Chọn Trạm dữ liệu");
+            }
+        });
+
         pagerGiamSatHeThong= (ViewPager) findViewById(R.id.pagerGiamSatHeThong);
-        adapterPager=new CustomPagerPagerGiamSat(getSupportFragmentManager(),getListFragments());
+        adapterPager= new CustomPagerPagerGiamSat(getSupportFragmentManager(),getListFragments());
         pagerGiamSatHeThong.setAdapter(adapterPager);
 
     }
 
-    private void getProjectInfo() {
+    private void getProjectInformation() {
+        ProjectService service = new ProjectService(this);
+        service.getProjectInfo(Constant.PROJECT_NAME, new ProjectService.ProjectServiceCallBack() {
+            @Override
+            public void onProjectInfoReceived(Project projectSuccess) {
+                if (projectSuccess != null)
+                    project = projectSuccess;
+
+                Log.e("BieuDoRealTime", "FUNCTION: getProjectInformation, Project: " + project.toString());
+            }
+
+            @Override
+            public void onProjectInfoFailed(Project projectFailed) {
+                if (projectFailed != null)
+                    project = projectFailed;
+
+                Log.e("BieuDoRealTime", "FUNCTION: getProjectInformation, Project: " + project.toString());
+            }
+        });
 
     }
+
+    private void getNodesInformation() {
+        NodeService service = new NodeService(this);
+        service.getNodeInfo(new NodeService.NodeServiceCallBack() {
+            @Override
+            public void onNodeInfoReceived(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    JSONArray data = jsonObject.getJSONArray("data");
+                    int length = data.length();
+
+                    for (int i = length - 1; i > 0; i--){
+                        JSONObject nodeItem = data.getJSONObject(i);
+                        Node node = new Node();
+                        node.set_id(nodeItem.getString("id"));
+                        node.setName(nodeItem.getString("name"));
+                        String description = "";
+                        try {
+                            description = nodeItem.getString("description");
+                        }
+                        catch (JSONException e)
+                        {
+                            description = "";
+                        }
+                        node.setDescription(description);
+                        node.setId_server_gen(nodeItem.getString("id_server_gen"));
+//                        node.setId_gateway_server_gen(nodeItem.getString("id_gateway_server_gen"));
+//                        node.setId_gateway(nodeItem.getString("id_gateway"));
+                        node.setId_project(nodeItem.getString("id_project"));
+//                        node.setId_communication(nodeItem.getString("id_communication"));
+
+                        if (node.getId_project().equals(project.get_id()) == true)
+                            listNodes.add(node);
+                    }
+
+                    //init selected node
+                    if (listNodes.size() > 0) {
+                        selectedNode = listNodes.get(0); // Default is first node
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onNodeInfoFailed(String failed) {
+
+            }
+        });
+    }
+
+    private void selectDeviceDialog(String title) {
+        String tempSelectedDevice = "";
+        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
+        View view= LayoutInflater.from(this).inflate(R.layout.layout_select_device,null);
+//        builder.setView(R.layout.layout_select_device);
+        builder.setView(view);
+        builder.setTitle(title);
+        final android.support.v7.app.AlertDialog alertDialog = builder.create();
+        alertDialog.getWindow().setLayout(800, 600); //Controlling width and height.
+        alertDialog.show();
+
+        final Spinner spinner_Lake = (Spinner)alertDialog.findViewById(R.id.spinner_lake);
+//        final Spinner spinner_Device = (Spinner)alertDialog.findViewById(R.id.spinner_device);
+
+        if(listNodes.size() == 0){
+            Toast.makeText(this, "Tài khoản này không quản lý thiết bị nào!", Toast.LENGTH_SHORT).show();
+            alertDialog.dismiss();
+        }
+
+        String arr_lake[] = new String[listNodes.size()];
+
+        for(int i = 0; i < listNodes.size(); i++)
+        {
+            arr_lake[i] = listNodes.get(i).getName();
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>
+                (this, android.R.layout.simple_spinner_item,arr_lake);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner_Lake.setAdapter(adapter);
+
+        spinner_Lake.setSelection(selectedIndex);
+
+        spinner_Lake.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if (selectedIndex != i) {
+                    isNodeChanged = true;
+                }
+                selectedIndex = i;
+                selectedNode = listNodes.get(i);
+
+                System.out.println("HomeActivity: onItemSelected!!!");
+
+//                spinner_Device.setAdapter(adapter2);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+
+        Button btn_Ok = (Button) alertDialog.findViewById(R.id.btn_Ok);
+        btn_Ok.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if ((listener != null) && (isNodeChanged == true)) {
+                    Toast.makeText(HomeActivity.this, "Vui lòng đợi trong giây lát!", Toast.LENGTH_LONG).show();
+                    listener.onNodeChanged();
+                }
+                alertDialog.dismiss();
+                isNodeChanged = false;
+            }
+        });
+
+        Button btn_Huy = (Button) alertDialog.findViewById(R.id.btn_Huy);
+        btn_Huy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+                isNodeChanged = false;
+            }
+        });
+    }
+
 
     //Ham xu li su kien khi giu phim Back de thoat ung dung
     private Boolean exit = false;
@@ -175,10 +337,9 @@ public class HomeActivity extends AppCompatActivity
 
         if (id == R.id.nav_chart) {
             Intent t = new Intent(HomeActivity.this, BieuDoActivity.class);
-            t.putExtra("customerObj", customer);
-            t.putExtra("listLake", listLake);
-            t.putExtra("listDevice", listDevice);
             startActivity(t);
+
+            Toast.makeText(this, "Chức năng đang phát triển!", Toast.LENGTH_LONG).show();
 
         }  else if (id == R.id.nav_setting) {
             Intent t = new Intent(HomeActivity.this, SettingsActivity.class);
@@ -232,75 +393,24 @@ public class HomeActivity extends AppCompatActivity
         return true;
     }
 
-
-
     public List<Fragment> getListFragments(){
         List<Fragment> list=new ArrayList<>();
+
+        ThongSoRealTimeFragment thongSoRealTimeFragment=new ThongSoRealTimeFragment();
+        list.add(thongSoRealTimeFragment);
+
         BieuDoRealTimeFragment bieuDoRealTimeFragment=new BieuDoRealTimeFragment();
         list.add(bieuDoRealTimeFragment);
-//        ThongSoRealTimeFragment thongSoRealTimeFragment=new ThongSoRealTimeFragment();
-//        list.add(thongSoRealTimeFragment);
 
         return list;
     }
 
-//    public void getLakeAndDevice(){
-//        Uri builder = Uri.parse(Constant.URL + Constant.API_GET_LAKE_AND_DEVICE)
-//                .buildUpon()
-//                .appendQueryParameter("HomeId", customer.getHomeId() + "").build();
-//        DownloadJSON downloadJSON = new DownloadJSON(this);
-//
-//        System.out.println(builder.toString());
-//
-//        downloadJSON.GetJSON(builder, new DownloadJSON.DownloadJSONCallBack() {
-//            @Override
-//            public void onSuccess(String msgData) {
-//                Log.i("Data", msgData);
-//                if(msgData.length()>1){
-//                    try {
-//                        JSONArray jsonArray = new JSONArray(msgData);
-//                        for(int i=0 ; i<jsonArray.length(); i++){
-//                            JSONObject objTmp = jsonArray.getJSONObject(i);
-//                            int LakeId = objTmp.getInt("LakeId");
-//                            String Name = objTmp.getString("Name");
-//                            int HomeId = objTmp.getInt("HomeId");
-//                            String MapUrl = objTmp.getString("MapUrl");
-//                            String CreateTime = objTmp.getString("CreateTime");
-//                            Lake lakeObj = new Lake(LakeId, Name, HomeId,MapUrl, CreateTime);
-//                            listLake.add(lakeObj);
-//
-//                            JSONArray jsonDeviceArray = objTmp.getJSONArray("listDevice");
-//                            for(int j=0; j<jsonDeviceArray.length(); j++){
-//                                JSONObject jsonDeviceObj = jsonDeviceArray.getJSONObject(j);
-//                                int IdDevice = jsonDeviceObj.getInt("Id");
-//                                String NameDevice = jsonDeviceObj.getString("Name");
-//                                String ImeiDevice = jsonDeviceObj.getString("Imei");
-//                                String CreateTimeDevice = jsonDeviceObj.getString("CreateTime");
-//                                String WarningNumberPhone = jsonDeviceObj.getString("WarningNumberPhone");
-//                                String WarningMail = jsonDeviceObj.getString("WarningMail");
-//                                int LakeIdDevice = jsonDeviceObj.getInt("LakeId");
-//                                Device deviceObj = new Device(IdDevice, NameDevice, ImeiDevice, CreateTimeDevice, WarningNumberPhone, WarningMail, LakeIdDevice);
-//                                listDevice.add(deviceObj);
-//                            }
-//                        }
-//
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
-//
-//                    Log.i("Number of Lake", "Lake: " + listLake.size() + " - Device:" + listDevice.size());
-//
-//
-//
-//                }
-//            }
-//
-//            @Override
-//            public void onFail(String msgError) {
-//                Log.i("Error", msgError);
-//            }
-//        });
-//    }
+    public interface NodeChangeListener {
+        public void onNodeChanged();
+    }
 
-
+    public static NodeChangeListener listener;
+    public void setListener(NodeChangeListener listener) {
+        this.listener = listener;
+    }
 }

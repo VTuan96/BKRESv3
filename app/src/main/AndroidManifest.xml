@@ -29,7 +29,8 @@
         <activity android:name=".activity.ThongKeActivity" />
         <activity
             android:name=".activity.GopYActivity"
-            android:label="Thư góp ý" />
+            android:label="Thư góp ý"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
         <activity
             android:name=".activity.SettingsActivity"
             android:label="Thiết lập mức ngưỡng"

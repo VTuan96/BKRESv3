@@ -25,12 +25,12 @@
 
     <include layout="@layout/layout_giam_sat_thong_so" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fabThongSo"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/ic_search_white_36dp" />
+<!--    <android.support.design.widget.FloatingActionButton-->
+<!--        android:id="@+id/fabThongSo1"-->
+<!--        android:layout_width="45dp"-->
+<!--        android:layout_height="45dp"-->
+<!--        android:layout_gravity="bottom|end"-->
+<!--        android:layout_margin="@dimen/fab_margin"-->
+<!--        app:srcCompat="@drawable/ic_search_white_36dp" />-->
 
 </android.support.design.widget.CoordinatorLayout>
