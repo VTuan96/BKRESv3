@@ -72,7 +72,6 @@ public class SettingsActivity extends AppCompatActivity {
         SP = getSharedPreferences(SETTING_PREFERENCES, Context.MODE_PRIVATE);
         loadDataFromSharePreferences();
 
-
     }
 
     public void showBackArrow(){
@@ -94,8 +93,8 @@ public class SettingsActivity extends AppCompatActivity {
         sbPH= (RangeSeekBar) findViewById(R.id.sbPH);
         sbTemp= (RangeSeekBar) findViewById(R.id.sbTemp);
         sbH2S= (RangeSeekBar) findViewById(R.id.sbH2S);
-        sbOxy= (RangeSeekBar) findViewById(R.id.sbOxy);
-        sbNO2= (RangeSeekBar) findViewById(R.id.sbNO2);
+//        sbOxy= (RangeSeekBar) findViewById(R.id.sbOxy);
+//        sbNO2= (RangeSeekBar) findViewById(R.id.sbNO2);
         sbNH4= (RangeSeekBar) findViewById(R.id.sbNH4);
         sbSalt= (RangeSeekBar) findViewById(R.id.sbSalt);
     }
@@ -138,8 +137,8 @@ public class SettingsActivity extends AppCompatActivity {
         sbNH4.setSelectedMaxValue(NH4_Max);
         sbNH4.setSelectedMinValue(NH4_Min);
 
-        sbNO2.setSelectedMaxValue(NO2_Max);
-        sbNO2.setSelectedMinValue(NO2_Min);
+//        sbNO2.setSelectedMaxValue(NO2_Max);
+//        sbNO2.setSelectedMinValue(NO2_Min);
 
         sbSalt.setSelectedMaxValue(Salt_Max);
         sbSalt.setSelectedMinValue(Salt_Min);
@@ -147,8 +146,8 @@ public class SettingsActivity extends AppCompatActivity {
         sbH2S.setSelectedMaxValue(H2S_Max);
         sbH2S.setSelectedMinValue(H2S_Min);
 
-        sbOxy.setSelectedMaxValue(Oxy_Max);
-        sbOxy.setSelectedMinValue(Oxy_Min);
+//        sbOxy.setSelectedMaxValue(Oxy_Max);
+//        sbOxy.setSelectedMinValue(Oxy_Min);
 
     }
 
@@ -160,8 +159,8 @@ public class SettingsActivity extends AppCompatActivity {
         float _Sal_Max = sbSalt.getSelectedMaxValue().floatValue();
         float _Sal_Min = sbSalt.getSelectedMinValue().floatValue();
 
-        float _Oxy_Max = sbOxy.getSelectedMaxValue().floatValue();
-        float _Oxy_Min = sbOxy.getSelectedMinValue().floatValue();
+//        float _Oxy_Max = sbOxy.getSelectedMaxValue().floatValue();
+//        float _Oxy_Min = sbOxy.getSelectedMinValue().floatValue();
 
         float _Temp_Max = sbTemp.getSelectedMaxValue().floatValue();
         float _Temp_Min = sbTemp.getSelectedMinValue().floatValue();
@@ -172,8 +171,8 @@ public class SettingsActivity extends AppCompatActivity {
         float _NH4_Max = sbNH4.getSelectedMaxValue().floatValue();
         float _NH4_Min = sbNH4.getSelectedMinValue().floatValue();
 
-        float _N02_Max = sbNO2.getSelectedMaxValue().floatValue();
-        float _N02_Min = sbNO2.getSelectedMinValue().floatValue();
+//        float _N02_Max = sbNO2.getSelectedMaxValue().floatValue();
+//        float _N02_Min = sbNO2.getSelectedMinValue().floatValue();
 
 
         SharedPreferences.Editor editor = SP.edit();
@@ -183,8 +182,8 @@ public class SettingsActivity extends AppCompatActivity {
         editor.putFloat(KEY_SALT_MAX, _Sal_Max);
         editor.putFloat(KEY_SALT_MIN, _Sal_Min);
 
-        editor.putFloat(KEY_OXY_MAX, _Oxy_Max);
-        editor.putFloat(KEY_OXY_MIN, _Oxy_Min);
+//        editor.putFloat(KEY_OXY_MAX, _Oxy_Max);
+//        editor.putFloat(KEY_OXY_MIN, _Oxy_Min);
 
         editor.putFloat(KEY_PH_MAX, _PH_Max);
         editor.putFloat(KEY_PH_MIN, _PH_Min);
@@ -193,8 +192,8 @@ public class SettingsActivity extends AppCompatActivity {
         editor.putFloat(KEY_NH4_MIN, _NH4_Min);
         editor.putFloat(KEY_H2S_MAX, _H2S_Max);
         editor.putFloat(KEY_H2S_MIN, _H2S_Min);
-        editor.putFloat(KEY_NO2_MIN, _N02_Min);
-        editor.putFloat(KEY_NO2_MAX, _N02_Max);
+//        editor.putFloat(KEY_NO2_MIN, _N02_Min);
+//        editor.putFloat(KEY_NO2_MAX, _N02_Max);
 
         editor.commit();
         Toast.makeText(this,"Saved", Toast.LENGTH_SHORT).show();
@@ -253,8 +252,8 @@ public class SettingsActivity extends AppCompatActivity {
         sbSalt.setSelectedMaxValue(ThongSo[1][1]);
         sbSalt.setSelectedMinValue(ThongSo[1][0]);
 
-        sbOxy.setSelectedMaxValue(ThongSo[5][1]);
-        sbOxy.setSelectedMinValue(ThongSo[5][0]);
+//        sbOxy.setSelectedMaxValue(ThongSo[5][1]);
+//        sbOxy.setSelectedMinValue(ThongSo[5][0]);
 
         sbTemp.setSelectedMaxValue(ThongSo[0][1]);
         sbTemp.setSelectedMinValue(ThongSo[0][0]);
@@ -265,8 +264,8 @@ public class SettingsActivity extends AppCompatActivity {
         sbNH4.setSelectedMaxValue(ThongSo[7][1]);
         sbNH4.setSelectedMinValue(ThongSo[7][0]);
 
-        sbNO2.setSelectedMaxValue(ThongSo[8][1]);
-        sbNO2.setSelectedMinValue(ThongSo[8][0]);
+//        sbNO2.setSelectedMaxValue(ThongSo[8][1]);
+//        sbNO2.setSelectedMinValue(ThongSo[8][0]);
     }
 
 }

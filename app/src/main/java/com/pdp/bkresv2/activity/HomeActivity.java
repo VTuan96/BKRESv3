@@ -2,8 +2,10 @@ package com.pdp.bkresv2.activity;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -82,9 +84,13 @@ public class HomeActivity extends AppCompatActivity
     public static Project projectInfo = null;
     public static Node selectedNode;
     public static int selectedIndex = 0;
-    public ArrayList<Node> listNodes = new ArrayList<>();
+    public static ArrayList<Node> listNodes = new ArrayList<>();
     public Project project = new Project();
     public static boolean isNodeChanged = false;
+
+    public static SharedPreferences nodeListPref;
+    public static final String NODE_LIST_PREFERENCES = "NodeListPreference";
+    private boolean isFirstLoadingNodeList = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,7 +129,7 @@ public class HomeActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                selectDeviceDialog("Chọn Trạm dữ liệu");
+                selectDeviceDialog("Chọn Trạm dữ liệu", HomeActivity.this);
             }
         });
 
@@ -206,10 +212,10 @@ public class HomeActivity extends AppCompatActivity
         });
     }
 
-    private void selectDeviceDialog(String title) {
+    private void selectDeviceDialog(String title, final Context context) {
         String tempSelectedDevice = "";
-        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
-        View view= LayoutInflater.from(this).inflate(R.layout.layout_select_device,null);
+        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(context);
+        View view= LayoutInflater.from(context).inflate(R.layout.layout_select_device,null);
 //        builder.setView(R.layout.layout_select_device);
         builder.setView(view);
         builder.setTitle(title);
@@ -221,8 +227,10 @@ public class HomeActivity extends AppCompatActivity
 //        final Spinner spinner_Device = (Spinner)alertDialog.findViewById(R.id.spinner_device);
 
         if(listNodes.size() == 0){
-            Toast.makeText(this, "Tài khoản này không quản lý thiết bị nào!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Tài khoản này không quản lý thiết bị nào!", Toast.LENGTH_SHORT).show();
             alertDialog.dismiss();
+
+            getNodesInformation();
         }
 
         String arr_lake[] = new String[listNodes.size()];
@@ -248,8 +256,6 @@ public class HomeActivity extends AppCompatActivity
                 selectedIndex = i;
                 selectedNode = listNodes.get(i);
 
-                System.out.println("HomeActivity: onItemSelected!!!");
-
 //                spinner_Device.setAdapter(adapter2);
             }
 
@@ -264,7 +270,7 @@ public class HomeActivity extends AppCompatActivity
         btn_Ok.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if ((listener != null) && (isNodeChanged == true)) {
-                    Toast.makeText(HomeActivity.this, "Vui lòng đợi trong giây lát!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, "Vui lòng đợi trong giây lát!", Toast.LENGTH_SHORT).show();
                     listener.onNodeChanged();
                 }
                 alertDialog.dismiss();
@@ -322,9 +328,9 @@ public class HomeActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -338,8 +344,6 @@ public class HomeActivity extends AppCompatActivity
         if (id == R.id.nav_chart) {
             Intent t = new Intent(HomeActivity.this, BieuDoActivity.class);
             startActivity(t);
-
-            Toast.makeText(this, "Chức năng đang phát triển!", Toast.LENGTH_LONG).show();
 
         }  else if (id == R.id.nav_setting) {
             Intent t = new Intent(HomeActivity.this, SettingsActivity.class);

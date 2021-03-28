@@ -21,6 +21,7 @@ public class Constant {
     public static final String API_PROJECT_LIST = "project/list?page=0";
 
     public static final String API_NODE_LIST = "node/list?page=0";
+    public static final String API_NODE_HISTORY = "node/data";
 
     public static final float DEFAULT_TEMP_MAX = 33f;
     public static final float DEFAULT_TEMP_MIN = 18f;

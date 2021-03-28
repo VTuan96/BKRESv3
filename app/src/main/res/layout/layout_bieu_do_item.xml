@@ -23,6 +23,9 @@
             android:text=""/>
         <com.github.mikephil.charting.charts.LineChart
             android:layout_width="match_parent"
+            android:layout_gravity="center"
+            android:layout_marginLeft="@dimen/dimen_4dp"
+            android:layout_marginRight="@dimen/dimen_4dp"
             android:layout_marginTop="6dp"
             android:layout_height="240dip"
             android:id="@+id/graph" />

@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -16,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,6 +42,8 @@ import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -63,6 +67,7 @@ public class ThongSoRealTimeFragment extends Fragment {
 
     public double PH_Max, PH_Min, Temp_Max, Temp_Min, Salt_Max, Salt_Min, Oxy_Max, Oxy_Min, H2S_Max, H2S_Min,NO2_Max, NO2_Min,NH4_Max,NH4_Min;
 
+    ProgressBar pbParamRealtime;
 
     private Socket mSocket;
     final String TAG = "Socket IO";
@@ -102,9 +107,6 @@ public class ThongSoRealTimeFragment extends Fragment {
         View v= inflater.inflate(R.layout.fragment_thong_so_real_time,container,false);
         customer = HomeActivity.customer;
         initWidget(v);
-        pDialog = new ProgressDialog(getContext());
-
-
 //        FloatingActionButton fab = (FloatingActionButton) v.findViewById(R.id.fabThongSo);
 //        fab.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -217,6 +219,8 @@ public class ThongSoRealTimeFragment extends Fragment {
 //        txt_H2S_Min = (TextView) v.findViewById(R.id.txt_Sulfide_Min);
 //        txt_H2S_Max = (TextView) v.findViewById(R.id.txt_Sulfide_Max);
 //        txt_Alkalinity= (TextView) v.findViewById(R.id.txt_Alkalinity);
+
+        pbParamRealtime = (ProgressBar) v.findViewById(R.id.pbParamRealtime);
     }
 
 
@@ -300,6 +304,48 @@ public class ThongSoRealTimeFragment extends Fragment {
         txt_COD.setText(datapackage.getCOD() + "");
     }
 
+
+    private Timer mTimer1;
+    private TimerTask mTt1;
+    private Handler mTimerHandler = new Handler();
+
+    private void stopTimer(){
+        if(mTimer1 != null){
+            mTimer1.cancel();
+            mTimer1.purge();
+        }
+
+        pbParamRealtime.setProgress(0);
+        pbParamRealtime.setVisibility(View.GONE);
+    }
+
+    private void startTimer(){
+        pbParamRealtime.setVisibility(View.VISIBLE);
+        mTimer1 = new Timer();
+        final int[] progress = {0};
+        mTt1 = new TimerTask() {
+            public void run() {
+                mTimerHandler.post(new Runnable() {
+                    public void run(){
+                        //TODO
+                        try {
+                            Thread.sleep(50);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        progress[0] = progress[0] + 5;
+                        if (progress[0] > 100) {
+                            progress[0] = 0;
+                        }
+                        pbParamRealtime.setProgress(progress[0]);
+                    }
+                });
+            }
+        };
+
+        mTimer1.schedule(mTt1, 1, 200);
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -309,8 +355,8 @@ public class ThongSoRealTimeFragment extends Fragment {
         mSocket.off(Socket.EVENT_CONNECT_ERROR, onConnectError);
         mSocket.off(Socket.EVENT_CONNECT_TIMEOUT, onConnectError);
         mSocket.off("new message", onDataReceive);
+        stopTimer();
     }
-
 
 
     private Emitter.Listener onConnect = new Emitter.Listener() {
@@ -321,6 +367,8 @@ public class ThongSoRealTimeFragment extends Fragment {
                 public void run() {
                     Toast.makeText(getContext(),
                             "Connected", Toast.LENGTH_SHORT).show();
+
+                    startTimer();
                 }
             });
         }
@@ -337,6 +385,7 @@ public class ThongSoRealTimeFragment extends Fragment {
                     //Toast.makeText(getApplicationContext(),
                     //       "Disconnect", Toast.LENGTH_SHORT).show();
 
+                    stopTimer();
                 }
             });
         }
@@ -351,6 +400,7 @@ public class ThongSoRealTimeFragment extends Fragment {
                     Log.e(TAG, args[0].toString());
 //                    Toast.makeText(getApplicationContext(),
 //                            "Lỗi cập nhật dữ liệu", Toast.LENGTH_SHORT).show();
+                    stopTimer();
                 }
             });
         }
@@ -429,10 +479,11 @@ public class ThongSoRealTimeFragment extends Fragment {
                                 //get settings of data
                                 getPreferences();
                                 //check current data and data on settings
-                                checkParameter(pH, PH_Min, PH_Max);
-                                checkParameter(temperature, Temp_Min, Temp_Max);
-                                checkParameter(dO, Oxy_Min, Oxy_Max);
-                                checkParameter(salt, Salt_Min, Salt_Max);
+
+                                setColorTextWarning(temperature, Temp_Min, Temp_Max, txt_Temp);
+                                setColorTextWarning(h2s, H2S_Min, H2S_Max, txt_H2S);
+                                setColorTextWarning(salt, Salt_Min, Salt_Max, txt_Salt);
+                                setColorTextWarning(nh4, NH4_Min, NH4_Max, txt_NH4);
 
                                 System.out.println("onDataReceive ---> id_node_server_gen: " + HomeActivity.selectedNode.getId_server_gen());
 
@@ -451,7 +502,7 @@ public class ThongSoRealTimeFragment extends Fragment {
 
     //change color of text parameter if it's out of range
     private void setColorTextWarning(double param, double min, double max, TextView txtParam){
-        if (param>max || param<min){
+        if (param > max || param < min){
             txtParam.setTextColor(Color.RED);
         } else {
             txtParam.setTextColor(getResources().getColor(R.color.colorParameter));
@@ -471,20 +522,20 @@ public class ThongSoRealTimeFragment extends Fragment {
         Salt_Max =  preferences.getFloat(SettingsActivity.KEY_SALT_MAX, Constant.DEFAULT_SALT_MAX);
         Salt_Min =  preferences.getFloat(SettingsActivity.KEY_SALT_MIN, Constant.DEFAULT_SALT_MIN);
 
-        Oxy_Max =  preferences.getFloat(SettingsActivity.KEY_OXY_MAX, Constant.DEFAULT_OXY_MAX);
-        Oxy_Min =  preferences.getFloat(SettingsActivity.KEY_OXY_MIN, Constant.DEFAULT_OXY_MIN);
+//        Oxy_Max =  preferences.getFloat(SettingsActivity.KEY_OXY_MAX, Constant.DEFAULT_OXY_MAX);
+//        Oxy_Min =  preferences.getFloat(SettingsActivity.KEY_OXY_MIN, Constant.DEFAULT_OXY_MIN);
 
         H2S_Max =  preferences.getFloat(SettingsActivity.KEY_H2S_MAX, Constant.DEFAULT_H2S_MAX);
         H2S_Min =  preferences.getFloat(SettingsActivity.KEY_H2S_MIN, Constant.DEFAULT_H2S_MIN);
         NH4_Max =  preferences.getFloat(SettingsActivity.KEY_NH4_MAX, Constant.DEFAULT_NH4_MAX);
         NH4_Min =  preferences.getFloat(SettingsActivity.KEY_NH4_MIN, Constant.DEFAULT_NH4_MIN);
-        NO2_Max =  preferences.getFloat(SettingsActivity.KEY_NO2_MAX, Constant.DEFAULT_NO2_MAX);
-        NO2_Min =  preferences.getFloat(SettingsActivity.KEY_NO2_MIN, Constant.DEFAULT_NO2_MIN);
+//        NO2_Max =  preferences.getFloat(SettingsActivity.KEY_NO2_MAX, Constant.DEFAULT_NO2_MAX);
+//        NO2_Min =  preferences.getFloat(SettingsActivity.KEY_NO2_MIN, Constant.DEFAULT_NO2_MIN);
     }
 
     //check limit of parameter
-    private boolean checkParameter(double parameter, double min, double max){
-        if (parameter < min || parameter > max){
+    private boolean checkOutOfRangeParameter(double parameter, double min, double max){
+        if (parameter < min || parameter > max) {
             return true; //if out of range
         }
         return false; //if in range

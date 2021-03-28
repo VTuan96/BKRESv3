@@ -1,5 +1,8 @@
 package com.pdp.bkresv2.activity;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -20,6 +23,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -29,8 +33,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,11 +45,17 @@ import com.github.mikephil.charting.data.Entry;
 import com.pdp.bkresv2.adapter.CustomPagerAdapter;
 import com.pdp.bkresv2.adapter.GraphAdapter;
 import com.pdp.bkresv2.adapter.LakeAdapter;
+import com.pdp.bkresv2.fragment.BieuDoRealTimeFragment;
+import com.pdp.bkresv2.fragment.DatePickerFragment;
 import com.pdp.bkresv2.fragment.DeviceFragment;
 import com.pdp.bkresv2.model.Customer;
 import com.pdp.bkresv2.model.Device;
 import com.pdp.bkresv2.model.Graph;
 import com.pdp.bkresv2.model.Lake;
+import com.pdp.bkresv2.model.Node;
+import com.pdp.bkresv2.model.Project;
+import com.pdp.bkresv2.service.NodeService;
+import com.pdp.bkresv2.service.ProjectService;
 import com.pdp.bkresv2.task.DownloadJSON;
 import com.pdp.bkresv2.utils.Constant;
 import com.pdp.bkresv2.utils.XuLyThoiGian;
@@ -55,6 +67,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 /*
@@ -90,36 +104,408 @@ public class BieuDoActivity extends AppCompatActivity {
     private int year, month, day;
 
 
-    //My code
-    ArrayList<Graph> listGraph=new ArrayList<>();
+    TextView txtSelectNode, txtSelectTime;
+    RecyclerView rvGraphHistory;
+    ImageView ivSelectNode, ivSelectTime;
+    ProgressBar pbGraphHistory;
 
+    //My code
     private ViewPager pagerDevice;
     private CustomPagerAdapter adapterDevice;
-    private List<DeviceFragment> listFragments=new ArrayList<>();
+    private List<DeviceFragment> listFragments = new ArrayList<>();
     public static int positionFragment=0;
+
+    private ArrayList<Node> listNodes = new ArrayList<>();
+    private Project project = new Project();
+    private Node selectedNode;
+    private int selectedIndex = 0;
+    private  boolean isNodeChanged = false;
+
+    private boolean isNodeSelected = false;
+    private boolean isTimeSelected = false;
+
+    private ArrayList<Graph> listGraph=new ArrayList<>();
+    private GraphAdapter adapter = new GraphAdapter(listGraph);
+    private int count = 0;
+
+    //All components of all graphs
+    private ArrayList<Entry> entriesPH=new ArrayList<>();
+    private ArrayList labelsPH = new ArrayList<String>();
+
+    private ArrayList<Entry> entriesSalt=new ArrayList<>();
+    private ArrayList labelsSalt = new ArrayList<String>();
+
+    private ArrayList<Entry> entriesDO =new ArrayList<>();
+    private ArrayList labelsDO = new ArrayList<String>();
+
+    private ArrayList<Entry> entriesTemp=new ArrayList<>();
+    private ArrayList labelsTemp = new ArrayList<String>();
+
+    private ArrayList<Entry> entriesH2S=new ArrayList<>();
+    private ArrayList labelsH2S = new ArrayList<String>();
+
+    private ArrayList<Entry> entriesNH4 =new ArrayList<>();
+    private ArrayList labelsNH4 = new ArrayList<String>();
+
+    private ArrayList<Entry> entriesCOD=new ArrayList<>();
+    private ArrayList labelsCOD = new ArrayList<String>();
+
+    private ArrayList<Entry> entriesTSS =new ArrayList<>();
+    private ArrayList labelsTSS = new ArrayList<String>();
+
+    //All label of graph
+    private String [] arrLabels = new String[]{"PH","Salt","DO", "Temp", "H2S","NH3", "TSS", "COD" };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bieu_do);
-        tmpNgayThangNam = XuLyThoiGian.layNgayHienTai();
-        Intent i = getIntent();
-        customer = (Customer) i.getSerializableExtra("customerObj");
-        listLake = (ArrayList<Lake>) i.getSerializableExtra("listLake");
-        listDevice = (ArrayList<Device>) i.getSerializableExtra("listDevice");
-//        tmpSelectedDeviceId=String.valueOf(listDevice.get(0).getId());
+
+        getProjectInformation();
+        getNodesInformation();
 
         initWidget();
         showBackArrow();
 
-        initViewPager();
+//        calendar = Calendar.getInstance();
+//        year = calendar.get(Calendar.YEAR);
+//
+//        month = calendar.get(Calendar.MONTH);
+//        day = calendar.get(Calendar.DAY_OF_MONTH);
 
-        calendar = Calendar.getInstance();
-        year = calendar.get(Calendar.YEAR);
+        getHistoryTime();
+        getHistoryNode();
 
-        month = calendar.get(Calendar.MONTH);
-        day = calendar.get(Calendar.DAY_OF_MONTH);
+    }
 
+    private void getProjectInformation() {
+        ProjectService service = new ProjectService(this);
+        service.getProjectInfo(Constant.PROJECT_NAME, new ProjectService.ProjectServiceCallBack() {
+            @Override
+            public void onProjectInfoReceived(Project projectSuccess) {
+                if (projectSuccess != null)
+                    project = projectSuccess;
+
+                Log.e("BieuDoRealTime", "FUNCTION: getProjectInformation, Project: " + project.toString());
+            }
+
+            @Override
+            public void onProjectInfoFailed(Project projectFailed) {
+                if (projectFailed != null)
+                    project = projectFailed;
+
+                Log.e("BieuDoRealTime", "FUNCTION: getProjectInformation, Project: " + project.toString());
+            }
+        });
+
+    }
+
+    private void getNodesInformation() {
+        selectedNode = HomeActivity.listNodes.size() > 0 ? HomeActivity.listNodes.get(0) : null; // Default is first node
+
+        /*
+        NodeService service = new NodeService(this);
+        service.getNodeInfo(new NodeService.NodeServiceCallBack() {
+            @Override
+            public void onNodeInfoReceived(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    JSONArray data = jsonObject.getJSONArray("data");
+                    int length = data.length();
+
+                    for (int i = length - 1; i > 0; i--){
+                        JSONObject nodeItem = data.getJSONObject(i);
+                        Node node = new Node();
+                        node.set_id(nodeItem.getString("id"));
+                        node.setName(nodeItem.getString("name"));
+                        String description = "";
+                        try {
+                            description = nodeItem.getString("description");
+                        }
+                        catch (JSONException e)
+                        {
+                            description = "";
+                        }
+                        node.setDescription(description);
+                        node.setId_server_gen(nodeItem.getString("id_server_gen"));
+//                        node.setId_gateway_server_gen(nodeItem.getString("id_gateway_server_gen"));
+//                        node.setId_gateway(nodeItem.getString("id_gateway"));
+                        node.setId_project(nodeItem.getString("id_project"));
+//                        node.setId_communication(nodeItem.getString("id_communication"));
+
+                        if (node.getId_project().equals(project.get_id()) == true)
+                            listNodes.add(node);
+                    }
+
+                    //init selected node
+                    if (listNodes.size() > 0) {
+                        selectedNode = listNodes.get(0); // Default is first node
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onNodeInfoFailed(String failed) {
+
+            }
+        });
+         */
+    }
+
+    private void selectDeviceDialog(String title, final Context context) {
+        String tempSelectedDevice = "";
+        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(context);
+        View view = LayoutInflater.from(context).inflate(R.layout.layout_select_device,null);
+//        builder.setView(R.layout.layout_select_device);
+        builder.setView(view);
+        builder.setTitle(title);
+        final android.support.v7.app.AlertDialog alertDialog = builder.create();
+        alertDialog.getWindow().setLayout(800, 600); //Controlling width and height.
+        alertDialog.show();
+
+        final Spinner spinner_Lake = (Spinner)alertDialog.findViewById(R.id.spinner_lake);
+//        final Spinner spinner_Device = (Spinner)alertDialog.findViewById(R.id.spinner_device);
+
+        int listSize = HomeActivity.listNodes.size();
+        if(listSize == 0){
+            Toast.makeText(context, "Tài khoản này không quản lý thiết bị nào!", Toast.LENGTH_SHORT).show();
+            alertDialog.dismiss();
+        }
+
+        String arr_lake[] = new String[listSize];
+
+        for(int i = 0; i < listSize; i++)
+        {
+            arr_lake[i] = HomeActivity.listNodes.get(i).getName();
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>
+                (this, android.R.layout.simple_spinner_item,arr_lake);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner_Lake.setAdapter(adapter);
+
+        spinner_Lake.setSelection(selectedIndex);
+
+        spinner_Lake.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if (selectedIndex != i) {
+                    isNodeChanged = true;
+                }
+                selectedIndex = i;
+                selectedNode = HomeActivity.listNodes.get(i);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+
+        Button btn_Ok = (Button) alertDialog.findViewById(R.id.btn_Ok);
+        btn_Ok.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (isNodeChanged == true) {
+                    txtSelectNode.setText(selectedNode.getName());
+                    isNodeSelected = true;
+
+                    resetGraphHistoryData();
+                    processData();
+                }
+                alertDialog.dismiss();
+                isNodeChanged = false;
+            }
+        });
+
+        Button btn_Huy = (Button) alertDialog.findViewById(R.id.btn_Huy);
+        btn_Huy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+                isNodeChanged = false;
+            }
+        });
+    }
+
+    private boolean isNumeric(String strNum) {
+        if (strNum == null) {
+            return false;
+        }
+        try {
+            double d = Double.parseDouble(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
+    }
+
+    private double setDataValue(String valStr) {
+        if (isNumeric(valStr)) {
+            return Double.parseDouble(valStr);
+        }
+        return Double.parseDouble("0");
+    }
+
+    private void showProgressBar() {
+        final int[] progress = {0};
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                progress[0] = progress[0] + 5;
+                if (progress[0] == 100) {
+                    progress[0] = 0;
+                }
+                pbGraphHistory.setProgress(progress[0]);
+            }
+        });
+        thread.start();
+
+    }
+
+    private Timer mTimer1;
+    private TimerTask mTt1;
+    private Handler mTimerHandler = new Handler();
+
+    private void stopTimer(){
+        if(mTimer1 != null){
+            mTimer1.cancel();
+            mTimer1.purge();
+        }
+
+        pbGraphHistory.setProgress(0);
+        pbGraphHistory.setVisibility(View.GONE);
+    }
+
+    private void startTimer(){
+        pbGraphHistory.setVisibility(View.VISIBLE);
+        mTimer1 = new Timer();
+        final int[] progress = {0};
+        mTt1 = new TimerTask() {
+            public void run() {
+                mTimerHandler.post(new Runnable() {
+                    public void run(){
+                        //TODO
+                        try {
+                            Thread.sleep(50);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        progress[0] = progress[0] + 5;
+                        if (progress[0] > 100) {
+                            progress[0] = 0;
+                        }
+                        pbGraphHistory.setProgress(progress[0]);
+                    }
+                });
+            }
+        };
+
+        mTimer1.schedule(mTt1, 1, 200);
+    }
+
+    private void processData() {
+        if (isNodeSelected && isTimeSelected) {
+            startTimer();
+
+            String nodeId = selectedNode.getId_server_gen();
+            String startDate = tmpNgayThangNam + " " + "00:00:00";
+            String endDate = tmpNgayThangNam + " " + "23:59:59";
+
+            NodeService service = new NodeService(this);
+            service.getNodeHistoryInfo(new NodeService.NodeHistoryCallBack() {
+                @Override
+                public void onNodeHistoryCallBack(String data) {
+                    System.out.println("processData - onNodeHistoryCallBack: " + data);
+
+                    try {
+                        JSONObject jsonObject = new JSONObject(data);
+                        JSONArray dataArr = jsonObject.getJSONArray("data");
+                        int length = dataArr.length();
+                        for (int i = 0; i < length; i++) {
+                            JSONObject objItem = dataArr.getJSONObject(i);
+
+                            String time = objItem.getString("time");
+                            int indexOfColon = time.indexOf(":");
+                            time = time.substring(indexOfColon - 2);
+                            double temperature = 0, pH = 0, dO = 0, salt = 0, h2s = 0, nh4 = 0, tss = 0, cod = 0;
+                            String tempStr = objItem.getString("T");
+                            String pHStr = objItem.getString("PH");
+                            String dOStr = objItem.getString("DO");
+                            String saltStr = objItem.getString("Salt");
+                            String h2sStr = objItem.getString("H2S");
+                            String nh4Str = objItem.getString("NH3");
+                            String tssStr = objItem.getString("TSS");
+                            String codStr = objItem.getString("COD");
+
+                            try {
+                                temperature = setDataValue(tempStr);
+                                pH = setDataValue(pHStr);
+                                dO = setDataValue(dOStr);
+                                salt = setDataValue(saltStr);
+                                h2s = setDataValue(h2sStr);
+                                nh4 = setDataValue(nh4Str);
+                                tss = setDataValue(tssStr);
+                                cod = setDataValue(codStr);
+                            } catch (NumberFormatException ex) {
+
+                            }
+
+                            BieuDoRealTimeFragment.addEntryAndLabel(entriesPH, labelsPH, pH, count, time);
+                            BieuDoRealTimeFragment.addEntryAndLabel(entriesSalt, labelsSalt, salt, count, time);
+                            BieuDoRealTimeFragment.addEntryAndLabel(entriesH2S, labelsH2S, h2s, count, time);
+                            BieuDoRealTimeFragment.addEntryAndLabel(entriesNH4, labelsNH4, nh4, count, time);
+                            BieuDoRealTimeFragment.addEntryAndLabel(entriesTSS, labelsTSS, tss, count, time);
+                            BieuDoRealTimeFragment.addEntryAndLabel(entriesDO, labelsDO, dO, count, time);
+                            BieuDoRealTimeFragment.addEntryAndLabel(entriesTemp, labelsTemp, temperature, count, time);
+                            BieuDoRealTimeFragment.addEntryAndLabel(entriesCOD, labelsCOD, cod, count, time);
+
+                            count++;
+                        }
+
+                        //get settings of data
+                        adapter.notifyDataSetChanged();
+
+                        stopTimer();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        stopTimer();
+                    }
+                }
+
+                @Override
+                public void onNodeHistoryFailed(String data) {
+                    stopTimer();
+                }
+            }, nodeId, startDate, endDate);
+        }
+    }
+
+    private void getHistoryNode() {
+        ivSelectNode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectDeviceDialog("Chọn Trạm dữ liệu", BieuDoActivity.this);
+            }
+        });
+    }
+
+    private void getHistoryTime() {
+        ivSelectTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DatePickerFragment datePickerFragment = new DatePickerFragment();
+                datePickerFragment.show(getSupportFragmentManager(), "Date Picker");
+            }
+        });
     }
 
     public void showBackArrow(){
@@ -138,151 +524,67 @@ public class BieuDoActivity extends AppCompatActivity {
     }
 
     public void initWidget() {
-//        txtContent= (TextView) findViewById(R.id.txtContent);
-        txt_BieuDo = (TextView) findViewById(R.id.txt_TenBieuDo);
-        pagerDevice= (ViewPager) findViewById(R.id.pagerDevice);
-    }
+        txtSelectNode = (TextView) findViewById(R.id.txtSelectNode);
+        txtSelectTime = (TextView) findViewById(R.id.txtSelectTime);
+        ivSelectNode = (ImageView) findViewById(R.id.ivSelectNode);
+        ivSelectTime = (ImageView) findViewById(R.id.ivSelectTime);
+        pbGraphHistory = (ProgressBar) findViewById(R.id.pbGraphHistory);
 
-    private void initViewPager(){
-        listFragments=new ArrayList<>();
-//        listFragments=getListFragments();
-//        adapterDevice=new CustomPagerAdapter(getSupportFragmentManager(),listFragments);
-//        pagerDevice.setAdapter(adapterDevice);
+        rvGraphHistory = (RecyclerView) findViewById(R.id.rvGraphHistory);
+        rvGraphHistory.setHasFixedSize(true);
+        LinearLayoutManager manager = new LinearLayoutManager(BieuDoActivity.this);
+        rvGraphHistory.setLayoutManager(manager);
 
-    }
-
-    private List<DeviceFragment> getListFragments(){
-        Intent i = getIntent();
-        customer = (Customer) i.getSerializableExtra("customerObj");
-        listLake = (ArrayList<Lake>) i.getSerializableExtra("listLake");
-        listDevice = (ArrayList<Device>) i.getSerializableExtra("listDevice");
-        List<DeviceFragment> mList=new ArrayList<>();
-        for(Device d:listDevice){
-            mList.add(DeviceFragment.newInstance(d.getName(),d.getId()));
-//            System.out.println("device id in getListFragments: "+d.getId());
+        count = 0;
+        listGraph = new ArrayList<>();
+        Graph gPH=new Graph(arrLabels[0],entriesPH,labelsPH);
+        Graph gSalt=new Graph(arrLabels[1],entriesSalt,labelsSalt);
+        Graph gDO=new Graph(arrLabels[2], entriesDO, labelsDO);
+        Graph gTemp=new Graph(arrLabels[3],entriesTemp,labelsTemp);
+        Graph gH2S=new Graph(arrLabels[4],entriesH2S,labelsH2S);
+        Graph gNH4=new Graph(arrLabels[5], entriesNH4, labelsNH4);
+        Graph gTSS=new Graph(arrLabels[6], entriesTSS, labelsTSS);
+        Graph gCOD=new Graph(arrLabels[7], entriesCOD, labelsCOD);
+        Graph [] arrGraph = new Graph[] {gPH, gSalt, gDO, gTemp, gH2S, gNH4, gTSS, gCOD};
+        for (Graph g : arrGraph){
+            listGraph.add(g);
         }
-
-        return mList;
+        adapter = new GraphAdapter(listGraph);
+        rvGraphHistory.setAdapter(adapter);
     }
 
+    private void resetGraphHistoryData() {
+        entriesPH = new ArrayList<Entry>();
+        entriesSalt = new ArrayList<Entry>();
+        entriesDO = new ArrayList<Entry>();
+        entriesTemp = new ArrayList<Entry>();
+        entriesH2S = new ArrayList<Entry>();
+        entriesNH4 = new ArrayList<Entry>();
+        entriesTSS = new ArrayList<Entry>();
+        entriesCOD = new ArrayList<Entry>();
+        listGraph = new ArrayList<Graph>();
 
-    public void getDataThongKe(final int tempSelectThongSo, final ArrayList<Graph> listGraph) {
-
-        Uri builder = Uri.parse(Constant.URL + Constant.API_GET_DATA_THONGKE)
-                .buildUpon()
-                .appendQueryParameter("strCode", "QN290394")
-                .appendQueryParameter("time", tmpNgayThangNam)
-                .appendQueryParameter("paramId", String.valueOf(tempSelectThongSo))
-                .appendQueryParameter("deviceId", tmpSelectedDeviceId).build();
-
-        downloadJSON = new DownloadJSON(this);
-
-
-        downloadJSON.GetJSON(builder, new DownloadJSON.DownloadJSONCallBack() {
-            @Override
-            public void onSuccess(String msgData) {
-                try{
-                    //JSONObject jsonObj = new JSONObject(msgData);
-                    JSONArray jsonArray = new JSONArray(msgData);
-                    if(jsonArray.length()==0){
-//                        txtContent.setVisibility(View.VISIBLE);
-                    }
-                    else{
-                        String nameGraph=arr_thongso[tempSelectThongSo-1];
-                        ArrayList<Entry> entries = new ArrayList<>();
-                        ArrayList labels = new ArrayList<String>();
-
-                        for(int i=0; i<jsonArray.length(); i++){
-                            JSONObject objTmp = jsonArray.getJSONObject(i);
-                            double value = objTmp.getDouble("value");
-                            String time = objTmp.getString("time");
-                            String[] words = time.split("\\s");
-                            Log.d("time",words[0]+words[1]);
-                            entries.add(new Entry((float)value, i));
-                            labels.add(words[1]);
-                        }
-                        Graph graph=new Graph(nameGraph,entries,labels);
-                        listGraph.add(graph);
-//                        txtContent.setVisibility(View.GONE);
-//
-//                        graphAdapter=new GraphAdapter(listGraph);
-//                        graphAdapter.notifyDataSetChanged();
-//                        rvBieuDo.setAdapter(graphAdapter);
-
-                        Log.d("size graph",listGraph.size()+"");
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onFail(String msgError) {
-//                progress.dismiss();
-                Log.i("Error", msgError);
-            }
-        });
-
-    }
-
-    public void getDataThongKe(final int tempSelectThongSo) {
-
-        Uri builder = Uri.parse(Constant.URL + Constant.API_GET_DATA_THONGKE)
-                .buildUpon()
-                .appendQueryParameter("strCode", "QN290394")
-                .appendQueryParameter("time", tmpNgayThangNam)
-                .appendQueryParameter("paramId", String.valueOf(tempSelectThongSo))
-                .appendQueryParameter("deviceId", tmpSelectedDeviceId).build();
-
-        downloadJSON = new DownloadJSON(this);
-
-
-        downloadJSON.GetJSON(builder, new DownloadJSON.DownloadJSONCallBack() {
-            @Override
-            public void onSuccess(String msgData) {
-                try{
-                    //JSONObject jsonObj = new JSONObject(msgData);
-                    JSONArray jsonArray = new JSONArray(msgData);
-                    if(jsonArray.length()==0){
-//                        txtContent.setVisibility(View.VISIBLE);
-                    }
-                    else{
-                        String nameGraph=arr_thongso[tempSelectThongSo-1];
-                        ArrayList<Entry> entries = new ArrayList<>();
-                        ArrayList labels = new ArrayList<String>();
-
-                        for(int i=0; i<jsonArray.length(); i++){
-                            JSONObject objTmp = jsonArray.getJSONObject(i);
-                            double value = objTmp.getDouble("value");
-                            String time = objTmp.getString("time");
-                            String[] words = time.split("\\s");
-                            Log.d("time",words[0]+words[1]);
-                            entries.add(new Entry((float)value, i));
-                            labels.add(words[1]);
-                        }
-                        Graph graph=new Graph(nameGraph,entries,labels);
-                        listGraph.add(graph);
-
-                        Log.i("size graph",listGraph.size()+"");
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onFail(String msgError) {
-//                progress.dismiss();
-                Log.i("Error", msgError);
-            }
-        });
-
+        count = 0;
+        listGraph = new ArrayList<>();
+        Graph gPH=new Graph(arrLabels[0],entriesPH,labelsPH);
+        Graph gSalt=new Graph(arrLabels[1],entriesSalt,labelsSalt);
+        Graph gDO=new Graph(arrLabels[2], entriesDO, labelsDO);
+        Graph gTemp=new Graph(arrLabels[3],entriesTemp,labelsTemp);
+        Graph gH2S=new Graph(arrLabels[4],entriesH2S,labelsH2S);
+        Graph gNH4=new Graph(arrLabels[5], entriesNH4, labelsNH4);
+        Graph gTSS=new Graph(arrLabels[6], entriesTSS, labelsTSS);
+        Graph gCOD=new Graph(arrLabels[7], entriesCOD, labelsCOD);
+        Graph [] arrGraph = new Graph[] {gPH, gSalt, gDO, gTemp, gH2S, gNH4, gTSS, gCOD};
+        for (Graph g : arrGraph){
+            listGraph.add(g);
+        }
+        adapter = new GraphAdapter(listGraph);
+        rvGraphHistory.setAdapter(adapter);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Toast.makeText(getBaseContext(),"Resume",Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -290,47 +592,9 @@ public class BieuDoActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        // TODO Auto-generated method stub
-        if (id == 999) {
-
-            DatePickerDialog datePickerDialog=new DatePickerDialog(this,myDateListener,year,month,day);
-
-            return datePickerDialog;
-        }
-        return null;
-    }
-
-    private DatePickerDialog.OnDateSetListener myDateListener = new
-            DatePickerDialog.OnDateSetListener() {
-                @Override
-                public void onDateSet(DatePicker arg0,
-                                      int arg1, int arg2, int arg3) {
-                    // TODO Auto-generated method stub
-                    // arg1 = year
-                    // arg2 = month
-                    // arg3 = day
-                    tmpNgayThangNam = arg1 +"-" + (arg2+1) + "-" + arg3;
-
-                    initViewPager();
-                    adapterDevice.notifyDataSetChanged();
-
-                }
-            };
-
-
+    /*
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        SubMenu subMenu= menu.addSubMenu(0,9999,0,"Chọn ao").setIcon(R.drawable.ic_lake_menu);
-
-        for (int i=0;i<listLake.size();i++){
-            SubMenu subMenu1= subMenu.addSubMenu(0,888,i,listLake.get(i).getName());
-            for (int j=0;j<listDevice.size();j++){
-                if (listLake.get(i).getLakeId()==listDevice.get(j).getLakeId())
-                    subMenu1.add(j,j,j,listDevice.get(j).getName());
-            }
-        }
 
         MenuInflater inflater= getMenuInflater();
         inflater.inflate(R.menu.menu_graph,menu);
@@ -340,29 +604,34 @@ public class BieuDoActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id=item.getItemId();
-        for (int i=0;i<listDevice.size();i++) {
-            if (id==i) {
-                Log.d("menu ",listDevice.get(i).getName());
-
-                int deviceID = listDevice.get(i).getId();
-                tmpSelectedDeviceId=String.valueOf(deviceID);
-
-                return true;
-            }
-        }
-
-
-        if (id== R.id.mnuTime) {
-            showDialog(999);
-
-            return true;
-        }
-
         return super.onOptionsItemSelected(item);
 
     }
+     */
 
+    public void onDateSet(int year, int month, int day){
+        String dayStr = "", monthStr = "", yearStr = "" + year;
+        if (day < 10) {
+            dayStr = "0" + day;
+        }
+        else {
+            dayStr = day + "";
+        }
+
+        if (month < 9) {
+            monthStr = "0" + (month + 1);
+        }
+        else {
+            monthStr = (month + 1) + "";
+        }
+        tmpNgayThangNam = dayStr + "/" + monthStr + "/" + yearStr;
+
+        txtSelectTime.setText(tmpNgayThangNam);
+
+        isTimeSelected = true;
+        resetGraphHistoryData();
+        processData();
+    }
 
 }
 

@@ -3,10 +3,12 @@ package com.pdp.bkresv2.fragment;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -21,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,6 +51,8 @@ import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -62,7 +67,7 @@ public class BieuDoRealTimeFragment extends Fragment {
     DownloadJSON downloadJSON;
     ProgressDialog pDialog;
 
-    public double PH_Max, PH_Min, Temp_Max, Temp_Min, Salt_Max, Salt_Min, Oxy_Max, Oxy_Min, H2S_Max, H2S_Min,NO2_Max, NO2_Min,NH4_Max,NH4_Min;
+    public static double PH_Max, PH_Min, Temp_Max, Temp_Min, Salt_Max, Salt_Min, Oxy_Max, Oxy_Min, H2S_Max, H2S_Min,NO2_Max, NO2_Min,NH4_Max,NH4_Min;
 
 
     private final int REQUEST_SETTING_CONFIG = 111;
@@ -81,6 +86,8 @@ public class BieuDoRealTimeFragment extends Fragment {
     private GraphAdapter adapter = new GraphAdapter(listGraph);
     private int count=0;
     private String time="";
+
+    private ProgressBar pbGraphRealtime;
 
     //All components of all graphs
     private ArrayList<Entry> entriesPH=new ArrayList<>();
@@ -104,14 +111,14 @@ public class BieuDoRealTimeFragment extends Fragment {
     private ArrayList<Entry> entriesCOD=new ArrayList<>();
     private ArrayList labelsCOD = new ArrayList<String>();
 
+    private ArrayList<Entry> entriesTSS =new ArrayList<>();
+    private ArrayList labelsTSS = new ArrayList<String>();
+
     private ArrayList<Entry> entriesNH4Max=new ArrayList<>();
     private ArrayList labelsNH4Max = new ArrayList<String>();
 
     private ArrayList<Entry> entriesNO2Min=new ArrayList<>();
     private ArrayList labelsNO2Min = new ArrayList<String>();
-
-    private ArrayList<Entry> entriesTSS =new ArrayList<>();
-    private ArrayList labelsTSS = new ArrayList<String>();
 
     private ArrayList<Entry> entriesH2SMax=new ArrayList<>();
     private ArrayList labelsH2SMax = new ArrayList<String>();
@@ -120,7 +127,7 @@ public class BieuDoRealTimeFragment extends Fragment {
     private ArrayList labelsH2SMin = new ArrayList<String>();
 
     //All label of graph
-    private String [] arrLabels=new String[]{"PH","Salt","DO", "Temp", "H2S","NH4", "TSS", "COD" };
+    private String [] arrLabels=new String[]{"PH","Salt","DO", "Temp", "H2S","NH3", "TSS", "COD" };
 
     private Socket mSocket;
     final String TAG = "Socket IO";
@@ -191,8 +198,6 @@ public class BieuDoRealTimeFragment extends Fragment {
         mSocket.on(Socket.EVENT_DISCONNECT,onDisconnect);
         mSocket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
         mSocket.on(Socket.EVENT_CONNECT_TIMEOUT, onConnectError);
-
-
 
         return v;
     }
@@ -269,134 +274,49 @@ public class BieuDoRealTimeFragment extends Fragment {
         }
         adapter = new GraphAdapter(listGraph);
         rvBieuDoThongKe.setAdapter(adapter);
+
+        pbGraphRealtime = (ProgressBar) v.findViewById(R.id.pbGraphRealtime);
     }
 
-    String tempSelectedDevice;
+    private Timer mTimer1;
+    private TimerTask mTt1;
+    private Handler mTimerHandler = new Handler();
 
-    public void selectDeviceDialog(String title) {
-        tempSelectedDevice = "";
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        View view= LayoutInflater.from(getContext()).inflate(R.layout.layout_select_device,null);
-        builder.setView(view);
-        builder.setTitle(title);
-        final AlertDialog alertDialog = builder.create();
-        alertDialog.getWindow().setLayout(800, 600); //Controlling width and height.
-        alertDialog.show();
-
-        final Spinner spinner_Node = (Spinner)alertDialog.findViewById(R.id.spinner_lake);
-
-        if(listNodes.size() == 0){
-            Toast.makeText(getContext(), "Tài khoản này không quản lý Trạm dữ liệu!", Toast.LENGTH_SHORT).show();
-            alertDialog.dismiss();
+    private void stopTimer(){
+        if(mTimer1 != null){
+            mTimer1.cancel();
+            mTimer1.purge();
         }
 
-        String arr_lake[] = new String[listNodes.size()];
-
-        for(int i=0; i<listNodes.size(); i++)
-            arr_lake[i] = listNodes.get(i).getName();
-
-        ArrayAdapter<String> adapter=new ArrayAdapter<String>
-                (getContext(), android.R.layout.simple_spinner_item,arr_lake);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner_Node.setAdapter(adapter);
-        spinner_Node.setSelection(selectedIndex);
-
-        spinner_Node.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                selectedIndex = i;
-                selectedNode = listNodes.get(i);
-//                selectedNodeName = selectedNode.getName();
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
-
-
-        Button btn_Ok = (Button) alertDialog.findViewById(R.id.btn_Ok);
-        btn_Ok.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                alertDialog.dismiss();
-                Toast.makeText(getContext(), "Vui lòng đợi trong giây lát!", Toast.LENGTH_LONG).show();
-//                selectedDevice = tempSelectedDevice;
-//                for(int k=0; k<listDevice.size(); k++){
-//                    if(listDevice.get(k).getName().compareTo(selectedDevice) == 0){
-//                        selectedImeiDevice = listDevice.get(k).getImei();
-//                        Log.i("IMEI DEVICE SELECT", selectedImeiDevice);
-//                        mSocket.emit("authentication", selectedImeiDevice);
-//                        mSocket.emit("join", selectedImeiDevice);
-//                        mSocket.on("new message", onDataReceive);
-//                        mSocket.connect();
-//                    }
-//
-//                }
-//                getDatapackageByDeviceName();
-
-            }
-        });
-
-        Button btn_Huy = (Button) alertDialog.findViewById(R.id.btn_Huy);
-        btn_Huy.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alertDialog.dismiss();
-            }
-        });
+        pbGraphRealtime.setProgress(0);
+        pbGraphRealtime.setVisibility(View.GONE);
     }
 
-    private void getNodesInformation() {
-        NodeService service = new NodeService(getContext());
-        service.getNodeInfo(new NodeService.NodeServiceCallBack() {
-            @Override
-            public void onNodeInfoReceived(String response) {
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
-                    JSONArray data = jsonObject.getJSONArray("data");
-                    int length = data.length();
-
-                    for (int i = length - 1; i > 0; i--){
-                        JSONObject nodeItem = data.getJSONObject(i);
-                        Node node = new Node();
-                        node.set_id(nodeItem.getString("id"));
-                        node.setName(nodeItem.getString("name"));
-                        String description = "";
+    private void startTimer(){
+        pbGraphRealtime.setVisibility(View.VISIBLE);
+        mTimer1 = new Timer();
+        final int[] progress = {0};
+        mTt1 = new TimerTask() {
+            public void run() {
+                mTimerHandler.post(new Runnable() {
+                    public void run(){
+                        //TODO
                         try {
-                            description = nodeItem.getString("description");
+                            Thread.sleep(50);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
-                        catch (JSONException e)
-                        {
-                            description = "";
+                        progress[0] = progress[0] + 5;
+                        if (progress[0] > 100) {
+                            progress[0] = 0;
                         }
-                        node.setDescription(description);
-                        node.setId_server_gen(nodeItem.getString("id_server_gen"));
-//                        node.setId_gateway_server_gen(nodeItem.getString("id_gateway_server_gen"));
-//                        node.setId_gateway(nodeItem.getString("id_gateway"));
-                        node.setId_project(nodeItem.getString("id_project"));
-//                        node.setId_communication(nodeItem.getString("id_communication"));
-
-                        if (node.getId_project().equals(project.get_id()) == true)
-                            listNodes.add(node);
+                        pbGraphRealtime.setProgress(progress[0]);
                     }
-
-                    //init selected node
-                    if (listNodes.size() > 0) {
-                        selectedNode = listNodes.get(0); // Default is first node
-                    }
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                });
             }
+        };
 
-            @Override
-            public void onNodeInfoFailed(String failed) {
-
-            }
-        });
+        mTimer1.schedule(mTt1, 1, 200);
     }
 
     public void getDatapackageByDeviceName(){
@@ -491,10 +411,12 @@ public class BieuDoRealTimeFragment extends Fragment {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(getActivity(),
-                            "Wait to connect ...!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(),
+                            "Connected", Toast.LENGTH_SHORT).show();
+                    startTimer();
                 }
             });
+
         }
     };
 
@@ -509,7 +431,7 @@ public class BieuDoRealTimeFragment extends Fragment {
                     Toast.makeText(getContext(),
                             "Disconnect", Toast.LENGTH_SHORT).show();
                     mSocket.connect();
-
+                    stopTimer();
                 }
             });
         }
@@ -616,7 +538,7 @@ public class BieuDoRealTimeFragment extends Fragment {
                                 count++;
 
                                 //get settings of data
-                                getPreferences();
+                                getPreferences(getContext());
                                 //check current data and data on settings
                                 checkParameter(pH, PH_Min, PH_Max);
                                 checkParameter(temperature, Temp_Min, Temp_Max);
@@ -637,7 +559,7 @@ public class BieuDoRealTimeFragment extends Fragment {
     };
 
     //add Entry and label into a graph
-    private void addEntryAndLabel(ArrayList<Entry> entries,ArrayList<String> labels, double value, int index, String time){
+    public static void addEntryAndLabel(ArrayList<Entry> entries,ArrayList<String> labels, double value, int index, String time){
         entries.add(new Entry(index,(float) value));
         labels.add(time);
     }
@@ -658,8 +580,8 @@ public class BieuDoRealTimeFragment extends Fragment {
     }
 
     //get data on settings
-    private void getPreferences(){
-        SharedPreferences preferences=PreferenceManager.getDefaultSharedPreferences(getContext());
+    public static void getPreferences(Context mContext){
+        SharedPreferences preferences=PreferenceManager.getDefaultSharedPreferences(mContext);
         PH_Max =  preferences.getFloat(SettingsActivity.KEY_PH_MAX, Constant.DEFAULT_PH_MAX);
         PH_Min =  preferences.getFloat(SettingsActivity.KEY_PH_MIN, Constant.DEFAULT_PH_MIN);
 

@@ -11,5 +11,8 @@
     <dimen name="nav_header_height">160dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="size10sp">10sp</dimen>
+    <dimen name="size22sp">22sp</dimen>
     <dimen name="dimen_4dp">4dp</dimen>
+    <dimen name="size18sp">18sp</dimen>
+    <dimen name="size20sp">20sp</dimen>
 </resources>

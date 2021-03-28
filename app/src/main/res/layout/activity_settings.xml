@@ -73,27 +73,27 @@
             app:absoluteMinValue="60.0"
             app:absoluteMaxValue="0.0" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Nồng độ Oxy"
-            android:textStyle="bold"
-            android:textSize="@dimen/activity_settings_title"
-            android:layout_marginTop="@dimen/dimen_8dp"
-            android:layout_marginLeft="@dimen/dimen_8dp"
-            android:layout_marginRight="@dimen/dimen_8dp"
-            android:textColor="@color/colorPrimary"/>
+<!--        <TextView-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Nồng độ Oxy"-->
+<!--            android:textStyle="bold"-->
+<!--            android:textSize="@dimen/activity_settings_title"-->
+<!--            android:layout_marginTop="@dimen/dimen_8dp"-->
+<!--            android:layout_marginLeft="@dimen/dimen_8dp"-->
+<!--            android:layout_marginRight="@dimen/dimen_8dp"-->
+<!--            android:textColor="@color/colorPrimary"/>-->
 
-        <org.florescu.android.rangeseekbar.RangeSeekBar
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/dimen_8dp"
-            android:layout_marginRight="@dimen/dimen_8dp"
-            android:id="@+id/sbOxy"
-            app:valuesAboveThumbs="true"
-            app:textAboveThumbsColor="@android:color/holo_purple"
-            app:absoluteMinValue="15.0"
-            app:absoluteMaxValue="0.0" />
+<!--        <org.florescu.android.rangeseekbar.RangeSeekBar-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginLeft="@dimen/dimen_8dp"-->
+<!--            android:layout_marginRight="@dimen/dimen_8dp"-->
+<!--            android:id="@+id/sbOxy"-->
+<!--            app:valuesAboveThumbs="true"-->
+<!--            app:textAboveThumbsColor="@android:color/holo_purple"-->
+<!--            app:absoluteMinValue="15.0"-->
+<!--            app:absoluteMaxValue="0.0" />-->
 
         <TextView
             android:layout_width="wrap_content"
@@ -139,27 +139,27 @@
             app:absoluteMinValue="1.0"
             app:absoluteMaxValue="0.0" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Nồng độ NO2"
-            android:textStyle="bold"
-            android:textSize="@dimen/activity_settings_title"
-            android:layout_marginTop="@dimen/dimen_8dp"
-            android:layout_marginLeft="@dimen/dimen_8dp"
-            android:layout_marginRight="@dimen/dimen_8dp"
-            android:textColor="@color/colorPrimary"/>
+<!--        <TextView-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Nồng độ NO2"-->
+<!--            android:textStyle="bold"-->
+<!--            android:textSize="@dimen/activity_settings_title"-->
+<!--            android:layout_marginTop="@dimen/dimen_8dp"-->
+<!--            android:layout_marginLeft="@dimen/dimen_8dp"-->
+<!--            android:layout_marginRight="@dimen/dimen_8dp"-->
+<!--            android:textColor="@color/colorPrimary"/>-->
 
-        <org.florescu.android.rangeseekbar.RangeSeekBar
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/dimen_8dp"
-            android:layout_marginRight="@dimen/dimen_8dp"
-            android:id="@+id/sbNO2"
-            app:valuesAboveThumbs="true"
-            app:textAboveThumbsColor="@android:color/holo_purple"
-            app:absoluteMinValue="2.0"
-            app:absoluteMaxValue="0.0" />
+<!--        <org.florescu.android.rangeseekbar.RangeSeekBar-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginLeft="@dimen/dimen_8dp"-->
+<!--            android:layout_marginRight="@dimen/dimen_8dp"-->
+<!--            android:id="@+id/sbNO2"-->
+<!--            app:valuesAboveThumbs="true"-->
+<!--            app:textAboveThumbsColor="@android:color/holo_purple"-->
+<!--            app:absoluteMinValue="2.0"-->
+<!--            app:absoluteMaxValue="0.0" />-->
 
         <TextView
             android:layout_width="wrap_content"
